@@ -1,6 +1,7 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "cd Website && npm run build",
+  "outputDirectory": "Website/dist",
+  "installCommand": "cd Website && npm install",
   "rewrites": [
     {
       "source": "/privacy",
