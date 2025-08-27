@@ -60,13 +60,16 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
     const settings = await chrome.storage.sync.get(['focusTrollSites']);
     const sites = settings.focusTrollSites || DEFAULT_SITES;
     
-    if (!sites[hostname] || !sites[hostname].enabled) {
+    // Normalize hostname by removing www. prefix to match site keys
+    const normalizedHostname = hostname.startsWith('www.') ? hostname.substring(4) : hostname;
+    
+    if (!sites[normalizedHostname] || !sites[normalizedHostname].enabled) {
       console.log(`Focus Troll: ${hostname} not enabled or not in sites list`);
       return;
     }
     
     const hasPermission = await chrome.permissions.contains({
-      origins: sites[hostname].permissions
+      origins: sites[normalizedHostname].permissions
     });
     
     if (!hasPermission) {
