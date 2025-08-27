@@ -1,5 +1,5 @@
-/* Pacifio (Brand Font) */
-@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+/* Londrina Shadow (Brand Font) */
+@import url("https://fonts.googleapis.com/css2?family=Londrina+Shadow&display=swap");
 
 /* Inter (UI Font) */
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
@@ -16,7 +16,7 @@
   --color-bg3: #bbf7d0;
 
   --font-inter: "Inter", sans-serif;
-  --font-brand: "Pacifico", sans-serif;
+  --font-brand: "Londrina Shadow", cursive;
 }
 
 /* custom container class */
