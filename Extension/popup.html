@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 750px;
+      max-width: 100%;
+      min-height: 500px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      margin: 0;
+      background: #f8f9fa;
+    }
+
+    .main-container {
+      display: flex;
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .left-column {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .right-column {
+      min-width: 330px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e1e5e9;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #1a73e8;
+      font-weight: 600;
+    }
+
+    .header p {
+      margin: 5px 0 0 0;
+      color: #5f6368;
+      font-size: 12px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-weight: 600;
+      color: #202124;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .site-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      transition: background-color 0.2s;
+    }
+
+    .site-item:hover {
+      background: #f1f3f4;
+    }
+
+    .site-left-section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .site-icon {
+      width: 24px;
+      height: 24px;
+      background: #f8f9fa;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .site-icon img {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+      border-radius: 3px;
+    }
+
+    .site-name {
+      color: #202124;
+      font-weight: 500;
+    }
+
+    .custom-site-item {
+      position: relative;
+    }
+
+    .delete-btn {
+      background: #ea4335;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    .delete-btn:hover {
+      background: #d33b2c;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: #1a73e8;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .toggle-switch.active .toggle-slider {
+      transform: translateX(20px);
+    }
+
+    .add-site {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .add-site input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .add-site input:focus {
+      outline: none;
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+    }
+
+    .add-btn {
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .add-btn:hover {
+      background: #1557b0;
+    }
+
+    .add-btn:disabled {
+      background: #dadce0;
+      cursor: not-allowed;
+    }
+
+    .status {
+      text-align: center;
+      padding: 12px;
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      color: #5f6368;
+      font-size: 12px;
+    }
+
+    .status.active {
+      background: #e8f0fe;
+      border-color: #1a73e8;
+      color: #1a73e8;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #5f6368;
+      font-style: italic;
+      padding: 16px;
+    }
+
+    .setup-mode {
+      /* Use default width from body */
+    }
+
+    .setup-header {
+      /* display: none; */
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      margin: -16px -16px 20px -16px;
+      text-align: center;
+    }
+
+    .setup-header h2 {
+      margin: 0 0 8px 0;
+      font-size: 20px;
+    }
+
+    .setup-description {
+      display: none;
+      background: #e3f2fd;
+      border: 1px solid #1976d2;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 20px;
+      color: #1565c0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .permission-badge {
+      background: #fff3e0;
+      color: #f57c00;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 500;
+      border: 1px solid #ffb74d;
+    }
+
+    .setup-done {
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .setup-done:hover {
+      background: #45a049;
+    }
+
+    .info-card {
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .info-card h3 {
+      margin: 0 0 12px 0;
+      color: #1a73e8;
+      font-size: 16px;
+    }
+
+    .info-card p {
+      margin: 0 0 12px 0;
+      color: #5f6368;
+      line-height: 1.5;
+    }
+
+    .info-card ul {
+      margin: 8px 0;
+      padding-left: 20px;
+      color: #5f6368;
+    }
+
+    .info-card li {
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .enable-all-container {
+      text-align: right;
+      /* justify-content: space-between; */
+      align-items: end;
+      margin-bottom: 4px;
+      padding: 12px;
+      /* background: #e8f0fe;
+      border: 1px solid #1a73e8;
+      border-radius: 6px; */
+    }
+
+    .enable-all-text {
+      color: #1565c0;
+      font-weight: 500;
+    }
+
+    .enable-all-btn {
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .enable-all-btn:hover {
+      background: #1557b0;
+    }
+
+    .enable-all-btn:disabled {
+      background: #dadce0;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <div class="header" style="display:none !important;">
+    <h1>Focus Troll</h1>
+    <p>Auto-logout from social media when tabs close</p>
+  </div>
+  <div class="setup-header" id="setupHeader">
+    <h2>Welcome to Focus Troll!</h2>
+    <!-- <p>Let's set up your focus monitoring</p> -->
+  </div>
+  <div class="main-container">
+
+    <div class="left-column">
+
+
+      <div class="info-card">
+        <h3>🎯 How Focus Troll Works</h3>
+        <p>Focus Troll helps you stay focused by automatically logging you out of selected social media sites when you close their tabs.</p>
+        <ul style="list-style: decimal;">
+          <li>Watches for closed social media tabs.</li>
+          <li>Waits 10 seconds (in case you need quick access again) then auto-logs you out.</li>
+          <li>This forces intentional login next site visit.</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>🔒 Privacy & Permissions</h3>
+        <p>Your privacy is important. Focus Troll only requests permission for sites you choose to monitor.</p>
+        <ul>
+          <li><strong>No Default Access:</strong> Starts with zero permissions</li>
+          <li><strong>Site-by-Site:</strong> You control which sites to monitor</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="right-column">
+      <div class="section">
+        <div class="enable-all-container">
+          <span style="float:left; font-weight: 400;">Watched Sites</span>
+          <button class="enable-all-btn" id="enableAllBtn">Enable Permissions for All</button>
+        </div>
+        <div id="defaultSites"></div>
+      </div>
+
+      <div class="section">
+        <!-- <div class="section-title">Custom Sites</div> -->
+        <div id="customSites">
+          <div class="empty-state" style="display:none;">No custom sites added</div>
+        </div>
+        <div class="add-site">
+          <input type="text" id="newSiteInput" placeholder="Enter custom domain (example.com)">
+          <button class="add-btn" id="addSiteBtn">Add</button>
+        </div>
+      </div>
+
+      <div class="status" id="status">
+        Extension is active
+      </div>
+
+      <button class="setup-done" id="setupDone" style="display: none;">
+        All Done. Start Monitoring!
+      </button>
+    </div>
+  </div>
+
+
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
