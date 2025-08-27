@@ -1,0 +1,48 @@
+/* Pacifio (Brand Font) */
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+
+/* Inter (UI Font) */
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  --color-p1: #22c55e;
+  --color-n1: #404040;
+  --color-n2: #666666;
+  --color-n3: #999999;
+  --color-bg1: #f0fdf4;
+  --color-bg2: #dcfce7;
+  --color-bg3: #bbf7d0;
+
+  --font-inter: "Inter", sans-serif;
+  --font-brand: "Pacifico", sans-serif;
+}
+
+/* custom container class */
+@utility px-custom {
+  @apply px-4 2xl:container lg:px-8 xl:px-20 2xl:mx-auto;
+}
+
+/* custom bg gradient */
+@utility bg-gradient {
+  background: linear-gradient(to bottom right, #8985ff, #6164ed);
+}
+
+/* Custom gradient for text */
+@utility text-gradient {
+  background-image: linear-gradient(to bottom right, #8985ff, #6164ed);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* border class for quick testing */
+@utility b {
+  @apply border border-red-600;
+}
+
+/* bg color change on different screen sizes (for responsive testing)*/
+@utility s {
+  @apply sm:bg-purple-200 md:bg-purple-400 lg:bg-purple-600 xl:bg-purple-800 2xl:bg-purple-950;
+}

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/webp" href="/images/focus_troll_logo.webp" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Focus Troll: Your Mischievous Productivity Sidekick</title>
+  <meta name="description" content="Focus Troll is a browser extension that logs you out of distracting sites when you close tabs. Let the Troll guard your focus and break endless scroll habits." />
+  <link rel="canonical" href="https://www.focustroll.com/" />
+  <meta name="theme-color" content="#0e0e10" />
+
+  <!-- Preconnects -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/src/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+
+  <!-- Chrome Web Store Badge -->
+  <meta name="chrome-web-store" content="https://chromewebstore.google.com/detail/focus-troll/mffajbnigippnflfldiaelhpndncmeaj" />
+
+  <!-- Social Sharing -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Focus Troll" />
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:title" content="Focus Troll: Your Mischievous Productivity Sidekick" />
+  <meta property="og:description" content="Browser extension that logs you out of distracting sites. Let the Troll guard your focus and break endless scroll habits." />
+  <meta property="og:url" content="https://www.focustroll.com/" />
+  <meta property="og:image" content="https://www.focustroll.com/images/og_focus_troll.png" />
+  <meta property="og:image:alt" content="Focus Troll browser extension interface" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Focus Troll: Your Mischievous Productivity Sidekick" />
+  <meta name="twitter:description" content="Browser extension that auto-logs you out of distracting sites. Let the Troll guard your focus and break endless scroll habits." />
+  <meta name="twitter:image" content="https://www.focustroll.com/images/og_focus_troll.png" />
+
+
+  <!-- Structured Data: Browser Extension -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"Focus Troll",
+    "description":"A browser extension that logs you out of distracting sites to help you stay focused and productive.",
+    "operatingSystem":"Chrome",
+    "applicationCategory":"BrowserExtension",
+    "url":"https://chromewebstore.google.com/detail/focus-troll/mffajbnigippnflfldiaelhpndncmeaj",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+    "publisher":{
+      "@type":"Organization",
+      "name":"Focus Troll",
+      "logo":{"@type":"ImageObject","url":"https://www.focustroll.com/images/focus_troll_logo_full.webp"}
+    }
+  }
+  </script>
+
+  <!-- Structured Data: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Organization",
+    "name":"Focus Troll",
+    "url":"https://www.focustroll.com/",
+    "logo":"https://www.focustroll.com/images/focus_troll_logo_full.webp",
+    "sameAs":[
+      "https://x.com/FocusTroll",
+      "https://www.youtube.com/@FocusTroll"
+    ]
+  }
+  </script>
+
+  <!-- Structured Data: FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {
+        "@type":"Question",
+        "name":"How does Focus Troll work?",
+        "acceptedAnswer":{"@type":"Answer","text":"When you close a tab on distracting sites like Facebook, LinkedIn, or Twitter, Focus Troll automatically logs you out. The next time you try to visit, you'll need to log in again - just enough friction to break the endless scroll habit."}
+      },
+      {
+        "@type":"Question",
+        "name":"Is Focus Troll really free?",
+        "acceptedAnswer":{"@type":"Answer","text":"Yes! Focus Troll is completely free with no premium features. The troll works for everyone, no payment required."}
+      },
+      {
+        "@type":"Question",
+        "name":"Will Focus Troll be available for other browsers?",
+        "acceptedAnswer":{"@type":"Answer","text":"We're focused on making Focus Troll the best Chrome experience possible. If you're interested in Firefox, Safari, or other browsers, let us know—your feedback helps us decide what to build next!"}
+      }
+    ]
+  }
+  </script>
+</head>
+
+<body class="font-inter bg-bg1 text-n1">
+  <!-- Chrome Extension Badge -->
+  <div class="chrome-badge fixed -bottom-1 right-4 z-99 hidden md:block">
+    <div
+      class="flex flex-col items-center bg-p1 p-3 rounded-tl-xl rounded-tr-xl shadow-lg">
+      <p
+        class="mt-[6px] text-bg1 text-[10px] text-center tracking-widest uppercase font-semibold">
+        Install Now!
+      </p>
+      <div class="text-bg1 text-4xl my-2">🧌</div>
+      <div
+        class="mt-[5px] mb-1 hover:scale-105 transition-all ease-in duration-300">
+        <a
+          href="https://chromewebstore.google.com/detail/focus-troll/mffajbnigippnflfldiaelhpndncmeaj?utm_source=focustroll.com&utm_medium=website&utm_campaign=side_badge"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="bg-white text-p1 px-3 py-1 rounded font-medium text-sm hover:bg-gray-100">
+          Add to Chrome
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- navbar -->
+  <nav id="navbar" class="bg-bg1 sticky top-0 z-50 border-b border-b-bg3">
+    <div class="px-custom flex items-center h-16">
+      <!-- Logo -->
+      <a
+        href="/"
+        class="flex items-center text-xl font-semibold text-n1 -mt-[2px] mr-auto">
+        <img
+          src="/images/focus_troll_logo_full.webp"
+          class="h-9"
+          alt="focus troll logo" />
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex space-x-6 mx-auto">
+        <a
+          data-scroll="features"
+          class="cursor-pointer text-[14px] text-n1 hover:text-n3 transition-all duration-600">How it Works</a>
+        <a
+          data-scroll="testimonials"
+          class="cursor-pointer text-[14px] text-n1 hover:text-n3 transition-all duration-600">Testimonials</a>
+        <a
+          data-scroll="faq"
+          class="cursor-pointer text-[14px] text-n1 hover:text-n3 transition-all duration-600">FAQs</a>
+      </div>
+
+      <!-- Social Icons -->
+      <div class="text-p1 ml-auto hidden md:flex items-center space-x-4">
+        <a
+          href="mailto:support@focustroll.com"
+          class="hover:text-n2 transition-all duration-600">
+          <span class="sr-only">Contact Us</span>
+          <i class="ph ph-envelope text-2xl"></i>
+        </a>
+        <a
+          href="https://x.com/FocusTroll" target="_blank"
+          class="hover:text-n2 transition-all duration-600">
+          <span class="sr-only">Twitter</span>
+          <i class="ph ph-x-logo text-2xl"></i>
+        </a>
+        <a
+          href="https://www.youtube.com/@FocusTroll" target="_blank"
+          class="hover:text-n2 transition-all duration-600">
+          <span class="sr-only">YouTube</span>
+          <i class="ph ph-youtube-logo text-2xl"></i>
+        </a>
+      </div>
+
+      <!-- Mobile Buttons -->
+      <div class="flex items-center space-x-4 md:hidden ml-4">
+        <a
+          href="https://chromewebstore.google.com/detail/focus-troll/mffajbnigippnflfldiaelhpndncmeaj?utm_source=focustroll.com&utm_medium=website&utm_campaign=mobile_nav"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="bg-p1 hover:bg-green-600 text-white px-3 py-1 rounded text-sm font-medium transition-all ease-in duration-300">
+          Add to Chrome
+        </a>
+        <button id="menu-btn" class="text-n1">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 8h16M4 16h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div
+      id="mobile-menu"
+      class="hidden md:hidden bg-bg1 border-b border-bg3 absolute w-full left-0 top-16 p-4 space-y-4">
+      <a data-scroll="features" class="nav-link block text-n1">How it Works</a>
+      <a data-scroll="testimonials" class="nav-link block text-n1">Testimonials</a>
+      <a data-scroll="faq" class="nav-link block text-n1">FAQs</a>
+      <!-- Social Icons -->
+      <div class="text-p1 ml-auto flex items-center space-x-4">
+        <a href="mailto:support@focustroll.com" class="hover:text-n2">
+          <span class="sr-only">Contact Us</span>
+          <i class="ph ph-envelope text-2xl"></i>
+        </a>
+        <a
+          href="https://www.youtube.com/@FocusTroll" target="_blank"
+          class="hover:text-n2">
+          <span class="sr-only">YouTube</span>
+          <i class="ph ph-youtube-logo text-2xl"></i>
+        </a>
+        <a href="https://x.com/FocusTroll" target="_blank"
+          class="hover:text-n2">
+          <span class="sr-only">Twitter</span>
+          <i class="ph ph-x-logo text-2xl"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content" tabindex="-1">
+    <!-- Hero section -->
+    <header class="px-custom relative">
+      <div class="mt-0 md:mt-32 2xl:mt-36">
+        <div class="grid grid-cols-5 gap-16 lg:grid-cols-8 lg:gap-2">
+          <div class="col-span-5 mt-20 lg:mt-26 space-y-6 lg:space-y-10">
+            <h1
+              class="text-p1 font-brand text-center tracking-tight text-5xl sm:text-7xl leading-[.8] lg:text-left lg:text-8xl lg:leading-[1.1]">
+              focus like<br />
+              a troll.
+            </h1>
+            <p
+              class="mx-auto max-w-[280px] mb-5 md:max-w-md text-center tracking-normal text-n1 lg:mx-0 lg:text-left lg:text-lg">
+              No willpower battles, no blockers to bypass, just a grumpy troll that guards your focus.
+            </p>
+            <p
+              class="mx-auto max-w-[280px] md:max-w-md text-center tracking-normal text-n1 lg:mx-0 lg:text-left lg:text-lg">
+              Focus Troll is a mischievous browser extension that automatically logs you out of distracting sites when you close tabs, making endless scrolling just annoying enough to break the habit.
+
+            </p>
+            <div
+              class="flex flex-col items-center lg:items-start space-y-6 lg:space-y-4">
+              <div
+                class="flex flex-col items-center space-y-3 lg:flex-row lg:items-center lg:space-x-4 lg:space-y-0 justify-center">
+                <!-- Chrome Web Store Badge -->
+                <a
+                  href="https://chromewebstore.google.com/detail/focus-troll/mffajbnigippnflfldiaelhpndncmeaj?utm_source=focustroll.com&utm_medium=website&utm_campaign=hero_cta"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="bg-p1 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-all ease-in duration-300 hover:scale-105">
+                  🛡️ Add to Chrome - It's Free!
+                </a>
+
+                <!-- Rating -->
+                <div
+                  class="flex flex-col items-center lg:items-start text-sm font-medium space-y-1">
+                  <!-- Stars -->
+                  <div
+                    class="text-p1 flex"
+                    role="img"
+                    aria-label="Rating: 4 out of 5 stars">
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                    <i class="ph-fill ph-star"></i>
+                  </div>
+
+                  <!-- Text -->
+                  <p class="text-n3 text-center lg:text-left">
+                    Join 1000+ people guarded by the Troll
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Image -->
+          <div
+            class="col-span-5 flex justify-center lg:col-span-3 lg:justify-end relative">
+            <div class="relative overflow-hidden">
+              <img
+                class="w-96 md:w-[460px] heroimg"
+                src="/images/heroImage.png"
+                alt="Focus Troll browser extension interface showing the grumpy troll guarding your focus" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gradient Overlay -->
+      <div
+        class="absolute -mt-40 h-40 left-0 right-0 bg-gradient-to-t from-bg1 to-bg1/0"></div>
+    </header>
+    <!-- Hero section ends -->
+
+    <!-- Features section -->
+    <section id="features" class="px-custom space-y-16">
+      <h2 class="mt-40 text-4xl font-semibold tracking-tighter text-n1">
+        Stop nail biting, <br />
+        <span class="text-p1">naturally</span>
+      </h2>
+
+      <div
+        class="flex flex-col items-center gap-y-20 sm:flex-row sm:items-start sm:justify-between sm:gap-x-8">
+        <div class="mr-28 space-y-6 sm:mr-0">
+          <img
+            src="/images/feature2.webp"
+            height="372"
+            width="290"
+            alt="Focus Troll feature: Auto-Logout Protection"
+            class="rounded-lg" />
+          <div>
+            <h3 class="font-semibold text-n1">
+              🛑 Auto-Logout Protection
+            </h3>
+            <p class="max-w-[290px] text-n2">
+              When you close a tab on Facebook, LinkedIn, or other distracting sites, you'll be logged out instantly. No more mindless re-opening!
+            </p>
+          </div>
+        </div>
+
+        <div class="ml-28 space-y-6 sm:ml-0 sm:mt-10">
+          <img
+            src="/images/feature3.webp"
+            height="372"
+            width="290"
+            alt="Focus Troll feature: Your Mischievous Productivity Troll"
+            class="rounded-lg" />
+          <div>
+            <h3 class="font-semibold text-n1">👹 Your Mischievous Productivity Troll</h3>
+            <p class="max-w-[290px] text-n2">
+              A grumpy, funny character who nags and grumbles when you try to waste time. Sometimes you need humor to stick with your goals!
+            </p>
+          </div>
+        </div>
+
+        <div class="mr-28 space-y-6 sm:-mt-8 sm:mr-0">
+          <img
+            src="/images/feature1.webp"
+            height="372"
+            width="290"
+            alt="Focus Troll feature: Customizable Site Blocking"
+            class="rounded-lg" />
+          <div>
+            <h3 class="font-semibold text-n1">⚙️ Fully Customizable</h3>
+            <p class="max-w-[290px] text-n2">
+              Choose which sites to troll - social media, news, shopping, or any site that steals your attention. The troll adapts to your specific distractions.
+            </p>
+          </div>
+        </div>
+
+        <!-- <div class="ml-28 space-y-6 sm:ml-0 sm:mt-4">
+          <img
+            src="/images/feature4.webp"
+            height="372"
+            width="290"
+            alt="Calm Nails app feature: No Guilt, Just Growth"
+            class="rounded-lg" />
+          <div>
+            <h3 class="font-semibold text-n1">No Guilt, Just Growth</h3>
+            <p class="max-w-[240px] text-n2">
+              Focus on progress, not perfection. Every day is a fresh start.
+            </p>
+          </div>
+        </div> -->
+      </div>
+    </section>
+    <!-- Features section ends-->
+
+    <!-- Testimonials -->
+    <section id="testimonials" class="mt-60">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mx-4">
+        <!-- Testimonial 1 -->
+        <div class="bg-p1 rounded-4xl">
+          <div class="px-custom text-white pt-20 pb-16">
+            <div class="md:flex md:items-center sm:space-x-10">
+              <img
+                src="/images/phil.jpg"
+                class="h-28 w-28 sm:h-40 sm:w-40 rounded-full"
+                alt="Sarah's profile picture" />
+              <div class="mt-6 space-y-4 md:mt-0">
+                <p class="text-2xl text-bg1 max-w-[420px]">
+                  I built Focus Troll after years of getting distracted by social media while trying to work. This extension has literally saved my productivity and
+                  I absolutely believe it will help you focus like a troll too.
+
+                </p>
+                <p class="text-sm text-bg1/60">— Phil, Focus Troll Creator</p>
+              </div>
+            </div>
+            <div class="sm:-mt-12">
+              <img
+                src="/images/qmarks.webp"
+                class="ml-auto w-40 opacity-20 sm:w-48 md:w-72 lg:mr-20"
+                alt="quotation marks" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="bg-p1 rounded-4xl">
+          <div class="px-custom text-white pt-20 pb-16">
+            <div class="md:flex md:items-center sm:space-x-10">
+              <img
+                src="/public/images/nails.png"
+                class="h-28 w-28 sm:h-40 sm:w-40 rounded-full"
+                alt="User profile picture" />
+              <div class="mt-6 space-y-4 md:mt-0">
+                <p class="text-2xl text-bg1 max-w-[420px]">
+                  This troll is brilliant! I used to waste hours on Twitter and Facebook. Now when I close a tab, I'm logged out and it's just annoying enough that I actually focus on work instead. 10/10
+                </p>
+                <p class="text-sm text-bg1/60">— Sarah, Product Manager</p>
+              </div>
+            </div>
+            <div class="sm:-mt-12">
+              <img
+                src="/images/qmarks.webp"
+                class="ml-auto w-40 opacity-20 sm:w-48 md:w-72 lg:mr-20"
+                alt="quotation marks" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Testimonial ends-->
+
+    <!-- faq section -->
+    <section id="faq" class="py-40 sm:py-32 md:py-36 lg:py-60">
+      <div
+        class="px-custom mx-auto flex flex-col md:flex-row md:items-start gap-12">
+        <!-- Left Side - Title -->
+        <div class="md:w-1/3">
+          <h2
+            class="text-4xl font-semibold tracking-tighter text-n1 text-center md:text-left">
+            Frequently asked <br />
+            questions
+          </h2>
+        </div>
+
+        <!-- Right Side - FAQ List -->
+        <div class="md:w-2/3 space-y-3">
+          <div class="flow-root">
+            <div class="-my-4 flex flex-col divide-y divide-gray-200">
+
+              <!-- FAQ Item 1 -->
+              <details
+                class="group py-4 [&_summary::-webkit-details-marker]:hidden">
+                <summary
+                  class="flex items-center justify-between gap-1.5 text-n1 cursor-pointer">
+                  <h2 class="font-medium">
+                    How does Focus Troll work?
+                  </h2>
+                  <!-- plus icon -->
+                  <i
+                    class="ph ph-plus-circle block shrink-0 group-open:hidden text-2xl text-p1"></i>
+                  <!-- minus icon -->
+                  <i
+                    class="ph ph-minus-circle hidden shrink-0 group-open:block text-2xl text-p1"></i>
+                </summary>
+                <div class="answer mt-4">
+                  <p class="text-n2">
+                    When you close a tab on distracting sites like Facebook, LinkedIn, or Twitter, Focus Troll automatically logs you out. The next time you try to visit, you'll need to log in again - just enough friction to break the endless scroll habit.
+                  </p>
+                </div>
+              </details>
+
+              <!-- FAQ Item 2 -->
+              <details
+                class="group py-4 [&_summary::-webkit-details-marker]:hidden">
+                <summary
+                  class="flex items-center justify-between gap-1.5 text-n1 cursor-pointer">
+                  <h2 class="font-medium">
+                    Is Focus Troll really free?
+                  </h2>
+                  <!-- plus icon -->
+                  <i
+                    class="ph ph-plus-circle block shrink-0 group-open:hidden text-2xl text-p1"></i>
+                  <!-- minus icon -->
+                  <i
+                    class="ph ph-minus-circle hidden shrink-0 group-open:block text-2xl text-p1"></i>
+                </summary>
+                <div class="answer mt-4">
+                  <p class="text-n2">
+                    Yes! Focus Troll is completely free with no premium features. The troll works for everyone, no payment required.
+                  </p>
+                </div>
+              </details>
+
+              <!-- FAQ Item 1 -->
+              <details
+                class="group py-4 [&_summary::-webkit-details-marker]:hidden">
+                <summary
+                  class="flex items-center justify-between gap-1.5 text-n1 cursor-pointer">
+                  <h2 class="font-medium">
+                    Will Focus Troll be available for other browsers?
+                  </h2>
+                  <!-- plus icon -->
+                  <i
+                    class="ph ph-plus-circle block shrink-0 group-open:hidden text-2xl text-p1"></i>
+                  <!-- minus icon -->
+                  <i
+                    class="ph ph-minus-circle hidden shrink-0 group-open:block text-2xl text-p1"></i>
+                </summary>
+                <div class="answer mt-4">
+                  <p class="text-n2">
+                    We're focused on making Focus Troll the best Chrome experience possible. If you're interested in Firefox, Safari, or other browsers, let us know—your feedback helps us decide what to build next!
+                  </p>
+                </div>
+              </details>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer
+    class="bg-bg2 pt-16 sm:pt-28 md:pt-32 lg:pt-40 pb-5 px-4 lg:px-32 bg-cover bg-center m-4 rounded-4xl">
+    <div class="mx-auto w-fit my-8">
+      <img
+        src="/images/ctaImage.webp"
+        class="w-60 sm:w-[420px] rounded-lg"
+        alt="Image showcasing Focus Troll browser extension" />
+    </div>
+    <div class="mx-auto w-fit space-y-8 text-center">
+      <h2 class="text-4xl font-semibold tracking-tighter">
+        Start focusing <span class="text-p1">today.</span>
+      </h2>
+
+      <div class="flex flex-col items-center space-y-6 sm:space-y-4">
+        <div class="flex flex-col items-center space-y-3">
+          <!-- Chrome Web Store Badge -->
+          <a
+            href="https://chromewebstore.google.com/detail/focus-troll/mffajbnigippnflfldiaelhpndncmeaj?utm_source=focustroll.com&utm_medium=website&utm_campaign=footer_cta"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-p1 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-all ease-in duration-300 hover:scale-105">
+            🛡️ Add to Chrome - Free!
+          </a>
+
+          <!-- Rating -->
+          <div
+            class="flex flex-col items-center text-sm font-medium space-y-1">
+            <!-- Stars -->
+            <div
+              class="text-amber-400 flex"
+              role="img"
+              aria-label="Rating: 5 out of 5 stars">
+              <i class="ph-fill ph-star"></i>
+              <i class="ph-fill ph-star"></i>
+              <i class="ph-fill ph-star"></i>
+              <i class="ph-fill ph-star"></i>
+              <i class="ph-fill ph-star"></i>
+            </div>
+
+            <!-- Text -->
+            <p class="text-n3 text-center">
+              Join 1000+ people guarded by the Troll
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-custom mt-32 md:mt-40">
+      <div
+        class="flex flex-col space-y-4 md:flex-row justify-between mx-auto w-full px-4 sm:px-6 lg:px-8">
+        <!-- Social links -->
+        <div class="flex justify-center space-x-4 text-p1">
+          <a href="mailto:support@focustroll.com" class="hover:text-n2">
+            <span class="sr-only">Contact Us</span>
+            <i class="ph ph-envelope text-2xl"></i>
+          </a>
+
+          <a
+            href="https://x.com/FocusTroll" target="_blank"
+            class="hover:text-n2">
+            <span class="sr-only">Twitter</span>
+            <i class="ph ph-x-logo text-2xl"></i>
+          </a>
+
+          <a
+            href="https://www.youtube.com/@FocusTroll" target="_blank"
+            class="hover:text-n2">
+            <span class="sr-only">YouTube</span>
+            <i class="ph ph-youtube-logo text-2xl"></i>
+          </a>
+
+          <a
+            href="/terms"
+            class="hover:text-n2 text-n1">
+            <span class="sr-only">Terms of Service</span>
+          </a>
+
+          <a
+            href="/privacy"
+            class="hover:text-n2 text-n1">
+            <span class="sr-only">Privacy Policy</span>
+          </a>
+
+        </div>
+
+        <!-- Copyright -->
+        <p class="text-center text-sm text-n3">
+          &copy; <span id="year"></span> Focus Troll. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+  <!-- Footer ends-- -->
+
+  <!-- // dynamically setting the year -->
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear()
+  </script>
+
+  <!-- Scripts -->
+  <script type="module" src="/src/main.js"></script>
+  <!-- Smooth Scroll Script starts -->
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@0.2.28/bundled/lenis.js"></script>
+
+  <script>
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
+      direction: "vertical", // vertical, horizontal
+      gestureDirection: "vertical", // vertical, horizontal, both
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    })
+
+    function raf(time) {
+      lenis.raf(time)
+      requestAnimationFrame(raf)
+    }
+
+    requestAnimationFrame(raf)
+  </script>
+  <!-- Smooth Scroll Script ends -->
+</body>
+
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/images/focus_troll_logo.webp" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" />
+
+    <title>Privacy Policy - Focus Troll Extension</title>
+    <meta
+      name="description"
+      content="Privacy Policy for Focus Troll browser extension. Learn how we protect your data and privacy while helping you stay focused and productive." />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  </head>
+  <body class="font-inter bg-bg1 text-n1">
+    <!-- Chrome Extension Badge -->
+    <div class="chrome-badge fixed -bottom-1 right-4 z-99 hidden md:block">
+      <div
+        class="flex flex-col items-center bg-p1 p-3 rounded-tl-xl rounded-tr-xl shadow-lg">
+        <p
+          class="mt-[6px] text-bg1 text-[10px] text-center tracking-widest uppercase font-semibold">
+          Install Now!
+        </p>
+        <div class="text-bg1 text-4xl my-2">🧌</div>
+        <div
+          class="mt-[5px] mb-1 hover:scale-105 transition-all ease-in duration-300">
+          <a
+            href="https://chromewebstore.google.com/detail/focus-troll/mffajbnigippnflfldiaelhpndncmeaj?utm_source=focustroll.com&utm_medium=website&utm_campaign=privacy_badge"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white text-p1 px-3 py-1 rounded font-medium text-sm hover:bg-gray-100">
+            Add to Chrome
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- navbar -->
+    <nav id="navbar" class="bg-bg1 sticky top-0 z-50 border-b border-b-bg3">
+      <div class="px-custom flex items-center h-16">
+        <!-- Logo -->
+        <a
+          href="/"
+          class="flex items-center text-xl font-semibold text-n1 -mt-[2px] mr-auto">
+          <img
+            src="/images/focus_troll_logo_full.webp"
+            class="h-9"
+            alt="focus troll logo" />
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex space-x-6 mx-auto">
+          <a
+            href="/"
+            class="cursor-pointer text-[14px] text-n1 hover:text-n3 transition-all duration-600"
+            >Home</a
+          >
+          <a
+            href="/privacy"
+            class="cursor-pointer text-[14px] text-p1 hover:text-n3 transition-all duration-600"
+            >Privacy</a
+          >
+          <a
+            href="/terms"
+            class="cursor-pointer text-[14px] text-n1 hover:text-n3 transition-all duration-600"
+            >Terms</a
+          >
+        </div>
+
+        <!-- Social Icons -->
+        <div class="text-p1 ml-auto hidden md:flex items-center space-x-4">
+          <a
+            href="mailto:support@focustroll.com"
+            class="hover:text-n2 transition-all duration-600">
+            <span class="sr-only">Contact Us</span>
+            <i class="ph ph-envelope text-2xl"></i>
+          </a>
+          <a
+            href="https://x.com/FocusTroll"
+            class="hover:text-n2 transition-all duration-600">
+            <span class="sr-only">LinkedIn</span>
+            <i class="ph ph-linkedin-logo text-2xl"></i>
+          </a>
+          <a
+            href="https://www.youtube.com/@FocusTroll"
+            class="hover:text-n2 transition-all duration-600">
+            <span class="sr-only">Twitter</span>
+            <i class="ph ph-x-logo text-2xl"></i>
+          </a>
+        </div>
+
+        <!-- Mobile Buttons -->
+        <div class="flex items-center space-x-4 md:hidden ml-4">
+          <a
+            href="https://chromewebstore.google.com/detail/focus-troll/mffajbnigippnflfldiaelhpndncmeaj?utm_source=focustroll.com&utm_medium=website&utm_campaign=privacy_mobile"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-p1 hover:bg-green-600 text-white px-3 py-1 rounded text-sm font-medium transition-all ease-in duration-300">
+            Add to Chrome
+          </a>
+          <button id="menu-btn" class="text-n1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 8h16M4 16h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-bg1 border-b border-bg3 absolute w-full left-0 top-16 p-4 space-y-4">
+        <a href="/" class="nav-link block text-n1">Home</a>
+        <a href="/privacy" class="nav-link block text-p1">Privacy</a>
+        <a href="/terms" class="nav-link block text-n1">Terms</a>
+        <!-- Social Icons -->
+        <div class="text-p1 ml-auto flex items-center space-x-4">
+          <a href="mailto:support@focustroll.com" class="hover:text-n2">
+            <span class="sr-only">Contact Us</span>
+            <i class="ph ph-envelope text-2xl"></i>
+          </a>
+          <a
+            href="https://x.com/FocusTroll"
+            class="hover:text-n2">
+            <span class="sr-only">LinkedIn</span>
+            <i class="ph ph-linkedin-logo text-2xl"></i>
+          </a>
+          <a href="https://www.youtube.com/@FocusTroll" class="hover:text-n2">
+            <span class="sr-only">Twitter</span>
+            <i class="ph ph-x-logo text-2xl"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <main id="main-content" tabindex="-1" class="px-custom py-16 min-h-screen">
+      <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-semibold tracking-tighter text-n1 mb-8">
+          Privacy Policy
+        </h1>
+        
+        <div class="prose prose-lg text-n2 space-y-6">
+          <p class="text-sm text-n3 mb-4">Effective Date: August 23, 2025</p>
+          
+          <p class="text-lg">
+            Thank you for using Focus Troll, a browser extension designed to help you stay focused by automatically logging you out of distracting sites. Your privacy is important to us, and we're committed to being transparent about how we handle your information.
+          </p>
+
+          <h2 class="text-2xl font-semibold text-n1 mt-8 mb-4">1. No Personal Data Collected</h2>
+          <p>
+            Focus Troll does not collect, store, or share any personal data. We believe in keeping your experience truly private — your usage, browsing habits, and logout history remain entirely on your device and in your browser.
+          </p>
+
+          <h2 class="text-2xl font-semibold text-n1 mt-8 mb-4">2. No Tracking or Analytics</h2>
+          <p>
+            We do not use any form of analytics, cookies, tracking technologies, or third-party services that monitor your behavior inside or outside the extension. Your interactions with the extension are never recorded or transmitted.
+          </p>
+
+          <h2 class="text-2xl font-semibold text-n1 mt-8 mb-4">3. No Account or Login Required</h2>
+          <p>
+            You can use the full functionality of the extension without creating an account or logging in. We do not require your email address, phone number, or any other identifying information.
+          </p>
+
+          <h2 class="text-2xl font-semibold text-n1 mt-8 mb-4">4. Browser Permissions</h2>
+          <p>
+            Focus Troll requires permissions to access tabs and cookies on the sites you configure. These permissions are used solely to log you out when you close tabs on distracting sites. No data is sent to any server.
+          </p>
+
+          <h2 class="text-2xl font-semibold text-n1 mt-8 mb-4">5. Children's Privacy</h2>
+          <p>
+            This extension is designed for general audiences and does not knowingly collect data from children under 13. Since we collect no data at all, there is no risk of storing information from children or adults.
+          </p>
+
+          <h2 class="text-2xl font-semibold text-n1 mt-8 mb-4">6. Third-Party Services</h2>
+          <p>
+            Focus Troll does not integrate with any third-party services or SDKs (such as analytics, ads, or cloud storage). Everything runs locally in your browser.
+          </p>
+
+          <h2 class="text-2xl font-semibold text-n1 mt-8 mb-4">7. Changes to This Policy</h2>
+          <p>
+            We may update this Privacy Policy from time to time. Any changes will be reflected within the extension or on the Chrome Web Store listing. Since we do not collect contact information, we will not send updates directly.
+          </p>
+
+          <h2 class="text-2xl font-semibold text-n1 mt-8 mb-4">8. Contact Us</h2>
+          <p class="text-sm text-n3 mt-12 pt-8 border-t border-bg3">
+            If you have any questions or concerns about this Privacy Policy, feel free to reach out to us at: support@focustroll.com
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      class="bg-bg2 pt-16 sm:pt-28 md:pt-32 lg:pt-40 pb-5 px-4 lg:px-32 bg-cover bg-center m-4 rounded-4xl">
+      <div class="mx-auto w-fit my-8">
+        <img
+          src="/images/ctaImage.webp"
+          class="w-60 sm:w-[420px] rounded-lg"
+          alt="Image showcasing Focus Troll extension" />
+      </div>
+      <div class="mx-auto w-fit space-y-8 text-center">
+        <h2 class="text-4xl font-semibold tracking-tighter">
+          Install Focus Troll<span class="text-p1"><br />for free</span>
+        </h2>
+
+        <div class="flex flex-col items-center space-y-6 sm:space-y-4">
+          <div class="flex flex-col items-center space-y-3">
+            <!-- Appstore Badge -->
+            <a
+              href="https://chromewebstore.google.com/detail/focus-troll/mffajbnigippnflfldiaelhpndncmeaj?utm_source=focustroll.com&utm_medium=website&utm_campaign=privacy_footer"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="bg-p1 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-all ease-in duration-300 hover:scale-105">
+              🛡️ Add to Chrome - Free!
+            </a>
+
+            <!-- Rating -->
+            <div
+              class="flex flex-col items-center text-sm font-medium space-y-1">
+              <!-- Stars -->
+              <div
+                class="text-amber-400 flex"
+                role="img"
+                aria-label="Rating: 4 out of 5 stars">
+                <i class="ph-fill ph-star"></i>
+                <i class="ph-fill ph-star"></i>
+                <i class="ph-fill ph-star"></i>
+                <i class="ph-fill ph-star"></i>
+                <i class="ph-fill ph-star-half"></i>
+              </div>
+
+              <!-- Text -->
+              <p class="text-n3 text-center">
+                Join 1000+ users guarded by the Troll
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-custom mt-32 md:mt-40">
+        <div
+          class="flex flex-col space-y-4 md:flex-row justify-between mx-auto w-full px-4 sm:px-6 lg:px-8">
+          <!-- Social links -->
+          <div class="flex justify-center space-x-4 text-p1">
+            <a href="mailto:support@focustroll.com" class="hover:text-n2">
+              <span class="sr-only">Contact Us</span>
+              <i class="ph ph-envelope text-2xl"></i>
+            </a>
+
+            <a
+              href="https://x.com/FocusTroll"
+              class="hover:text-n2">
+              <span class="sr-only">Twitter</span>
+              <i class="ph ph-x-logo text-2xl"></i>
+            </a>
+
+            <a
+              href="https://www.youtube.com/@FocusTroll"
+              class="hover:text-n2">
+              <span class="sr-only">YouTube</span>
+              <i class="ph ph-youtube-logo text-2xl"></i>
+            </a>
+          </div>
+
+          <!-- Copyright -->
+          <p class="text-center text-sm text-n3">
+            &copy; <span id="year"></span> Focus Troll. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- // dynamically setting the year -->
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear()
+    </script>
+
+    <!-- Scripts -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
