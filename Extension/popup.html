@@ -71,6 +71,8 @@
       border-radius: 6px;
       margin-bottom: 6px;
       transition: background-color 0.2s;
+      width: 100%;
+      margin-right: 30px;
     }
 
     .site-item:hover {
@@ -100,6 +102,14 @@
       height: 16px;
       object-fit: contain;
       border-radius: 3px;
+    }
+
+    .site-item.disabled .site-icon img {
+      opacity: 0.8;
+    }
+
+    .site-item.disabled .site-name {
+      opacity: 0.8;
     }
 
     .site-name {
@@ -259,6 +269,13 @@
       border: 1px solid #ffb74d;
     }
 
+    .site-item span:not(.site-name) {
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+      line-height: 1;
+    }
+
     .setup-done {
       background: #4caf50;
       color: white;
@@ -386,7 +403,7 @@
       <div class="section">
         <div class="enable-all-container">
           <span style="float:left; font-weight: 400;">Watched Sites</span>
-          <button class="enable-all-btn" id="enableAllBtn">Enable Permissions for All</button>
+          <button class="enable-all-btn" id="enableAllBtn" style="display:none;">Enable Permissions for All</button>
         </div>
         <div id="defaultSites"></div>
       </div>

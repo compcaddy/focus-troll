@@ -24,9 +24,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('setupDone').style.display = 'block';
   }
   
-  if (isPermissionsMode) {
-    document.getElementById('setupHeader').innerHTML = '<h2>🔒 Grant Permissions</h2><p>Enable access to the sites you want to monitor</p>';
-  }
+  // if (isPermissionsMode) {
+  //   document.getElementById('setupHeader').innerHTML = '<h2>🔒 Grant Permissions</h2><p>Enable access to the sites you want to monitor</p>';
+  // }
   
   await loadSettings();
   await renderDefaultSites();
@@ -95,22 +95,25 @@ function renderCustomSites() {
   container.innerHTML = '';
   customSites.forEach(([domain, site]) => {
     const permissions = [`*://${domain}/*`, `*://www.${domain}/*`];
-    const siteElement = createSiteElement(site.name || domain, site.enabled, true, [domain], permissions, false);
+    const siteElement = createSiteElement(site.name || domain, site.enabled, true, [domain], permissions, false, site.icon);
     container.appendChild(siteElement);
   });
 }
 
 function createSiteElement(name, enabled, isCustom, domains, permissions, hasPermission, icon = null) {
   const siteDiv = document.createElement('div');
-  siteDiv.className = `site-item ${isCustom ? 'custom-site-item' : ''}`;
+  siteDiv.className = `site-item ${isCustom ? 'custom-site-item' : ''} ${enabled ? '' : 'disabled'}`;
   
   const leftSection = document.createElement('div');
   leftSection.className = 'site-left-section';
   
-  if (icon && !isCustom) {
+  if (icon) {
     const iconDiv = document.createElement('div');
     iconDiv.className = 'site-icon';
-    iconDiv.innerHTML = `<img src="${icon}" alt="${name}" />`;
+    // Use black icons (mb- prefix) for disabled sites, regular (tc- prefix) for enabled
+    // For custom sites, just use the favicon URL directly since it doesn't have tc-/mb- prefix
+    const iconUrl = isCustom ? icon : (enabled ? icon : icon.replace('/tc-', '/mb-'));
+    iconDiv.innerHTML = `<img src="${iconUrl}" alt="${name}" />`;
     leftSection.appendChild(iconDiv);
   }
   
@@ -126,12 +129,22 @@ function createSiteElement(name, enabled, isCustom, domains, permissions, hasPer
   
   if (!isCustom && !hasPermission && !enabled) {
     const permissionBadge = document.createElement('span');
-    permissionBadge.className = 'permission-badge';
-    permissionBadge.textContent = 'Permission needed';
+    //permissionBadge.className = 'permission-badge';
+    permissionBadge.textContent = '🔒';
     controlsDiv.appendChild(permissionBadge);
   }
   
   const toggle = createToggle(enabled, async (newState) => {
+    // Update visual state immediately
+    siteDiv.className = `site-item ${isCustom ? 'custom-site-item' : ''} ${newState ? '' : 'disabled'}`;
+    if (icon) {
+      const iconImg = siteDiv.querySelector('.site-icon img');
+      if (iconImg) {
+        const iconUrl = isCustom ? icon : (newState ? icon : icon.replace('/tc-', '/mb-'));
+        iconImg.src = iconUrl;
+      }
+    }
+    
     if (newState && !hasPermission && !isCustom) {
       if (isPermissionsMode) {
         const granted = await chrome.permissions.request({
@@ -140,6 +153,15 @@ function createSiteElement(name, enabled, isCustom, domains, permissions, hasPer
         
         if (!granted) {
           toggle.classList.remove('active');
+          // Revert visual state if permission denied
+          siteDiv.className = `site-item ${isCustom ? 'custom-site-item' : ''} disabled`;
+          if (icon) {
+            const iconImg = siteDiv.querySelector('.site-icon img');
+            if (iconImg) {
+              const iconUrl = isCustom ? icon : icon.replace('/tc-', '/mb-');
+              iconImg.src = iconUrl;
+            }
+          }
           return;
         }
         
@@ -156,6 +178,16 @@ function createSiteElement(name, enabled, isCustom, domains, permissions, hasPer
         await updateEnableAllButton();
         return;
       } else {
+        // Revert visual state since we're redirecting to permissions page
+        siteDiv.className = `site-item ${isCustom ? 'custom-site-item' : ''} disabled`;
+        toggle.classList.remove('active');
+        if (icon) {
+          const iconImg = siteDiv.querySelector('.site-icon img');
+          if (iconImg) {
+            const iconUrl = isCustom ? icon : icon.replace('/tc-', '/mb-');
+            iconImg.src = iconUrl;
+          }
+        }
         chrome.tabs.create({ 
           url: chrome.runtime.getURL('popup.html?permissions=true'),
           active: true 
@@ -379,11 +411,13 @@ async function addCustomSite() {
   }
   
   const permissions = [`*://${domain}/*`, `*://www.${domain}/*`];
+  const faviconUrl = `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=16`;
   currentSettings[domain] = {
     enabled: true,
     name: domain,
     custom: true,
-    permissions: permissions
+    permissions: permissions,
+    icon: faviconUrl
   };
   
   input.value = '';
