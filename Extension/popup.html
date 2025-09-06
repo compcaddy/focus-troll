@@ -3,367 +3,217 @@
 
 <head>
   <meta charset="utf-8">
-  <style>
-    body {
-      width: 750px;
-      max-width: 100%;
-      min-height: 500px;
-      padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      margin: 0;
-      background: #f8f9fa;
-    }
-
-    .main-container {
-      display: flex;
-      gap: 24px;
-      margin-top: 20px;
-    }
-
-    .left-column {
-      flex: 1;
-      min-width: 300px;
-    }
-
-    .right-column {
-      min-width: 330px;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #e1e5e9;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 18px;
-      color: #1a73e8;
-      font-weight: 600;
-    }
-
-    .header p {
-      margin: 5px 0 0 0;
-      color: #5f6368;
-      font-size: 12px;
-    }
-
-    .section {
-      margin-bottom: 24px;
-    }
-
-    .section-title {
-      font-weight: 600;
-      color: #202124;
-      margin-bottom: 12px;
-      font-size: 14px;
-    }
-
-    .site-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 12px;
-      background: white;
-      border: 1px solid #dadce0;
-      border-radius: 6px;
-      margin-bottom: 6px;
-      transition: background-color 0.2s;
-      width: 100%;
-      margin-right: 30px;
-    }
-
-    .site-item:hover {
-      background: #f1f3f4;
-    }
-
-    .site-left-section {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .site-icon {
-      width: 24px;
-      height: 24px;
-      background: #f8f9fa;
-      border: 1px solid #dadce0;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-
-    .site-icon img {
-      width: 16px;
-      height: 16px;
-      object-fit: contain;
-      border-radius: 3px;
-    }
-
-    .site-item.disabled .site-icon img {
-      opacity: 0.8;
-    }
-
-    .site-item.disabled .site-name {
-      opacity: 0.8;
-    }
-
-    .site-name {
-      color: #202124;
-      font-weight: 500;
-    }
-
-    .custom-site-item {
-      position: relative;
-    }
-
-    .delete-btn {
-      background: #ea4335;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 11px;
-      cursor: pointer;
-      margin-left: 8px;
-    }
-
-    .delete-btn:hover {
-      background: #d33b2c;
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 44px;
-      height: 24px;
-      background: #ccc;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .toggle-switch.active {
-      background: #1a73e8;
-    }
-
-    .toggle-slider {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      transition: transform 0.3s;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    }
-
-    .toggle-switch.active .toggle-slider {
-      transform: translateX(20px);
-    }
-
-    .add-site {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .add-site input {
-      flex: 1;
-      padding: 8px 12px;
-      border: 1px solid #dadce0;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    .add-site input:focus {
-      outline: none;
-      border-color: #1a73e8;
-      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-    }
-
-    .add-btn {
-      background: #1a73e8;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 16px;
-      font-size: 14px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .add-btn:hover {
-      background: #1557b0;
-    }
-
-    .add-btn:disabled {
-      background: #dadce0;
-      cursor: not-allowed;
-    }
-
-    .status {
-      text-align: center;
-      padding: 12px;
-      background: white;
-      border: 1px solid #dadce0;
-      border-radius: 6px;
-      color: #5f6368;
-      font-size: 12px;
-    }
-
-    .status.active {
-      background: #e8f0fe;
-      border-color: #1a73e8;
-      color: #1a73e8;
-    }
-
-    .empty-state {
-      text-align: center;
-      color: #5f6368;
-      font-style: italic;
-      padding: 16px;
-    }
-
-    .setup-mode {
-      /* Use default width from body */
-    }
-
-    .setup-header {
-      /* display: none; */
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px;
-      margin: -16px -16px 20px -16px;
-      text-align: center;
-    }
-
-    .setup-header h2 {
-      margin: 0 0 8px 0;
-      font-size: 20px;
-    }
-
-    .setup-description {
-      display: none;
-      background: #e3f2fd;
-      border: 1px solid #1976d2;
-      border-radius: 6px;
-      padding: 16px;
-      margin-bottom: 20px;
-      color: #1565c0;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .permission-badge {
-      background: #fff3e0;
-      color: #f57c00;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 500;
-      border: 1px solid #ffb74d;
-    }
-
-    .site-item span:not(.site-name) {
-      display: inline-flex;
-      align-items: center;
-      font-size: 12px;
-      line-height: 1;
-    }
-
-    .setup-done {
-      background: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 12px 24px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 20px;
-    }
-
-    .setup-done:hover {
-      background: #45a049;
-    }
-
-    .info-card {
-      background: white;
-      border: 1px solid #dadce0;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
-    .info-card h3 {
-      margin: 0 0 12px 0;
-      color: #1a73e8;
-      font-size: 16px;
-    }
-
-    .info-card p {
-      margin: 0 0 12px 0;
-      color: #5f6368;
-      line-height: 1.5;
-    }
-
-    .info-card ul {
-      margin: 8px 0;
-      padding-left: 20px;
-      color: #5f6368;
-    }
-
-    .info-card li {
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    .enable-all-container {
-      text-align: right;
-      /* justify-content: space-between; */
-      align-items: end;
-      margin-bottom: 4px;
-      padding: 12px;
-      /* background: #e8f0fe;
-      border: 1px solid #1a73e8;
-      border-radius: 6px; */
-    }
-
-    .enable-all-text {
-      color: #1565c0;
-      font-weight: 500;
-    }
-
-    .enable-all-btn {
-      background: #1a73e8;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 13px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .enable-all-btn:hover {
-      background: #1557b0;
-    }
-
-    .enable-all-btn:disabled {
-      background: #dadce0;
-      cursor: not-allowed;
-    }
-  </style>
+  <link href="./tailwind.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-bg1 text-n1 antialiased font-brand">
 
+  <div class="hidden min-[1200px]:block">
+    <div class="mx-auto max-w-[1200px] px-10 py-12">
+      <!-- Top header -->
+      <header class="flex items-center justify-between mb-6">
+        <div class="flex gap-3 items-center">
+          <div class="w-14 h-14">
+            <img src="/images/troll.png" alt="" />
+          </div>
+          <div>
+            <h1 class="text-xl font-extrabold leading-tight text-p1">
+              Meet Ünskrôll,
+            </h1>
+            <p class="text-n2 leading-snug font-medium text-sm">
+              <b>Your personal Focus Troll.</b><br />
+              He will help keep you on task, whether you like it or not.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="font-semibold">Ünskrôll on Duty</span>
+          <!-- Toggle -->
+          <a
+            href="/type-modal.html"
+            target="_blank"
+            class="relative inline-flex items-center cursor-pointer select-none">
+            <input type="checkbox" class="sr-only peer" checked />
+            <span
+              class="w-14 h-8 rounded-full bg-neutral-300 peer-checked:bg-p1 transition-colors relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-7 after:h-7 after:bg-white after:rounded-full after:shadow after:transition-all peer-checked:after:translate-x-6"></span>
+          </a>
+        </div>
+      </header>
+
+      <!-- main layout -->
+      <main class="grid grid-cols-2 gap-6">
+        <!-- Left column -->
+        <div class="flex flex-col gap-6">
+          <!-- Add Custom Site -->
+          <section class="bg-white rounded-2xl shadow-card p-6">
+            <h2 class="font-extrabold text-lg mb-5">Add a Custom Site</h2>
+            <div class="grid grid-cols-2 gap-4 mb-5">
+              <div>
+                <label class="block text-sm font-medium text-n1 mb-1">Site Name</label>
+                <input
+                  type="text"
+                  placeholder="Twitch"
+                  class="w-full h-12 rounded-xl border border-gray-200 focus:border-b-p1/50 focus:ring-2 focus:ring-p1/20 px-4 outline-none" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-n1 mb-1">Site URL</label>
+                <input
+                  type="url"
+                  placeholder="https://www.twitch.com"
+                  class="w-full h-12 rounded-xl border border-gray-200 focus:border-p1/50 focus:ring-2 focus:ring-p1/20 px-4 outline-none" />
+              </div>
+            </div>
+            <button
+              class="inline-flex items-center justify-center gap-2 w-full h-12 bg-p1 hover:bg-p1/90 hover:cursor-pointer text-white font-semibold rounded-xl transition-colors">
+              Add to Ünskrôll's Watchlist
+            </button>
+          </section>
+
+          <!-- How it works -->
+          <section class="bg-white rounded-2xl shadow-card p-6">
+            <h2 class="font-extrabold text-lg mb-5">How Focus Troll Works</h2>
+
+            <div class="grid grid-cols-2 gap-6">
+              <div class="space-y-3">
+                <div
+                  class="shrink-0 w-10 h-10 rounded-lg bg-p1/10 text-p1 flex items-center justify-center">
+                  <i class="ph ph-eye text-2xl"></i>
+                </div>
+                <div>
+                  <p class="font-semibold">Watches for Closed Tabs</p>
+                  <p class="text-n2 text-sm">
+                    Monitors when you close social media tabs to detect
+                    distraction patterns.
+                  </p>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div
+                  class="shrink-0 w-10 h-10 rounded-lg bg-p1/10 text-p1 flex items-center justify-center">
+                  <i class="ph ph-timer text-2xl"></i>
+                </div>
+                <div>
+                  <p class="font-semibold">Waits 10 Seconds</p>
+                  <p class="text-n2 text-sm">
+                    Gives you a brief moment in case you need quick access
+                    again.
+                  </p>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div
+                  class="shrink-0 w-10 h-10 rounded-lg bg-p1/10 text-p1 flex items-center justify-center">
+                  <i class="ph ph-sign-out text-2xl"></i>
+                </div>
+                <div>
+                  <p class="font-semibold">Auto-logs You Out</p>
+                  <p class="text-n2 text-sm">
+                    Forces intentional login for your next visit, breaking the
+                    habit loop.
+                  </p>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div
+                  class="shrink-0 w-10 h-10 rounded-lg bg-p1/10 text-p1 flex items-center justify-center">
+                  <i class="ph ph-placeholder text-2xl"></i>
+                </div>
+                <div>
+                  <p class="font-semibold">Or Hides Feed, No Log Out</p>
+                  <p class="text-n2 text-sm">
+                    Keeps you logged in but hides distracting content feeds.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Privacy -->
+          <section class="bg-white rounded-2xl shadow-card p-6">
+            <h2 class="font-extrabold text-lg mb-4">
+              Privacy and permissions
+            </h2>
+            <ul class="space-y-2 text-n2 text-sm">
+              <li class="flex gap-2">
+                <i class="ph ph-lock text-p1 mt-1"></i> No default access;
+                starts with zero permissions
+              </li>
+              <li class="flex gap-2">
+                <i class="ph ph-globe text-p1 mt-1"></i> You choose sites
+                individually; revoke anytime
+              </li>
+              <li class="flex gap-2">
+                <i class="ph ph-laptop text-p1 mt-1"></i> Local only: No data
+                leaves your device
+              </li>
+            </ul>
+          </section>
+        </div>
+
+        <!-- Right column -->
+        <div class="bg-white rounded-2xl shadow-card p-6">
+          <div class="flex items-center justify-between mb-1">
+            <h2 class="font-extrabold text-lg">Ünskrôll’s Watchlist</h2>
+            <span class="text-base font-bold text-n1 pr-8">Action</span>
+          </div>
+          <!-- Watchlist item template (used by popup2.js) -->
+          <template id="watchItemTemplate">
+            <li class="flex items-center justify-between py-5">
+              <div class="flex items-center gap-3">
+                <img class="js-site-icon" height="36px" width="36px" alt="" />
+                <div>
+                  <p class="js-site-name font-semibold leading-tight"></p>
+                  <p class="js-site-domain text-n2 text-sm leading-tight"></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="js-none-label hidden text-neutral-300 text-sm font-medium px-3 py-2">none</span>
+                <details class="js-dropdown relative">
+                  <summary class="js-dropdown-summary list-none cursor-pointer select-none inline-flex items-center gap-1 text-sm font-medium px-3 py-2 rounded-lg hover:bg-neutral-50 bg-white">
+                    <span class="js-mode-label"></span>
+                    <!-- Inline caret-down icon (no external icon font needed) -->
+                    <svg aria-hidden="true" class="h-4 w-4 text-current" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.172l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                  </summary>
+                  <ul class="absolute right-0 mt-1 w-56 bg-white border border-neutral-200 rounded-lg shadow-lg overflow-hidden z-20">
+                    <li class="js-choose-logout px-4 py-3 hover:bg-neutral-50 cursor-pointer">
+                      <div class="text-sm font-semibold text-n1">Auto Logout</div>
+                      <div class="text-xs text-n2 leading-snug">Force sign-in next visit to increase friction.</div>
+                    </li>
+                    <li class="js-choose-hidefeed px-4 py-3 hover:bg-neutral-50 cursor-pointer">
+                      <div class="text-sm font-semibold text-n1">Hide Feed</div>
+                      <div class="text-xs text-n2 leading-snug">Keep logged in but hide distracting content.</div>
+                    </li>
+                  </ul>
+                </details>
+                <label class="relative inline-flex items-center cursor-pointer select-none">
+                  <input type="checkbox" class="js-toggle sr-only peer" />
+                  <span class="w-12 h-7 rounded-full bg-gray-200 peer-checked:bg-p1 transition-colors relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-6 after:h-6 after:bg-white after:rounded-full after:shadow after:transition-all peer-checked:after:translate-x-5"></span>
+                </label>
+              </div>
+            </li>
+          </template>
+
+          <ul id="watchList" class="divide-y divide-neutral-100 divide"></ul>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="mt-14 pb-4 text-center text-sm text-n2">
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <img src="/images/focus-troll-logo-full-green-text.svg" alt="" />
+        </div>
+        <a
+          href="mailto:contact@trollfocus.com"
+          class="text-gray-700 hover:text-p1-700">contact@trollfocus.com</a>
+      </footer>
+    </div>
+  </div>
 
   <div class="header" style="display:none !important;">
     <h1>Focus Troll</h1>
@@ -376,26 +226,6 @@
   <div class="main-container">
 
     <div class="left-column">
-
-
-      <div class="info-card">
-        <h3>🎯 How Focus Troll Works</h3>
-        <p>Focus Troll helps you stay focused by automatically logging you out of selected social media sites when you close their tabs.</p>
-        <ul style="list-style: decimal;">
-          <li>Watches for closed social media tabs.</li>
-          <li>Waits 10 seconds (in case you need quick access again) then auto-logs you out.</li>
-          <li>This forces intentional login next site visit.</li>
-        </ul>
-      </div>
-
-      <div class="info-card">
-        <h3>🔒 Privacy & Permissions</h3>
-        <p>Your privacy is important. Focus Troll only requests permission for sites you choose to monitor.</p>
-        <ul>
-          <li><strong>No Default Access:</strong> Starts with zero permissions</li>
-          <li><strong>Site-by-Site:</strong> You control which sites to monitor</li>
-        </ul>
-      </div>
 
     </div>
 
@@ -431,6 +261,8 @@
 
 
 
+  <script src="data.js"></script>
+  <script src="popup2.js"></script>
   <script src="popup.js"></script>
 </body>
 
