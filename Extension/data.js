@@ -44,6 +44,7 @@
       sites: DEFAULT_SITES.slice(),
       onDuty: {
         enabled: true,
+        AlwaysOn: true,
         startTime: '08:00',
         endTime: '17:00',
         days: {
@@ -58,6 +59,12 @@
         autoCloseDelay: 3,
         autoLogoutDelay: '15s',
         feedBypassMethod: 'button',
+      },
+      ui: {
+        panels: {
+          advancedOpen: false,
+          addSiteOpen: false,
+        },
       },
       user: {
         name: '',
@@ -196,8 +203,11 @@
         // Ensure critical fields exist (forward-compat add)
         if (!Array.isArray(settings.settings.sites)) settings.settings.sites = DEFAULT_SITES.slice();
         if (!settings.settings.onDuty) settings.settings.onDuty = deepClone(DEFAULT_SETTINGS.settings.onDuty);
+        if (settings.settings.onDuty.AlwaysOn == null) settings.settings.onDuty.AlwaysOn = true;
         if (!settings.settings.user) settings.settings.user = { name: '', email: '' };
         if (!settings.settings.actions) settings.settings.actions = [];
+        if (!settings.settings.ui) settings.settings.ui = deepClone(DEFAULT_SETTINGS.settings.ui);
+        if (!settings.settings.ui.panels) settings.settings.ui.panels = deepClone(DEFAULT_SETTINGS.settings.ui.panels);
       }
 
       // Initialize actions if missing
@@ -450,6 +460,14 @@
       return !!ok;
     },
 
+    /** Update AlwaysOn (All Day) flag for on-duty schedule. */
+    async UpdateAlwaysOn(value) {
+      await ensureInitialized();
+      state.settings.settings.onDuty.AlwaysOn = toBool(value);
+      const ok = await saveSettings();
+      return !!ok;
+    },
+
     /** Update user name/email (stored as-is after trim). */
     async UpdateUser(name, email) {
       await ensureInitialized();
@@ -457,6 +475,18 @@
         name: (name || '').toString().trim(),
         email: (email || '').toString().trim(),
       };
+      const ok = await saveSettings();
+      return !!ok;
+    },
+
+    /** Update collapsible panel open state. panel: 'advanced' | 'addSite' */
+    async UpdatePanelOpen(panel, isOpen) {
+      await ensureInitialized();
+      if (!state.settings.settings.ui) state.settings.settings.ui = deepClone(DEFAULT_SETTINGS.settings.ui);
+      if (!state.settings.settings.ui.panels) state.settings.settings.ui.panels = deepClone(DEFAULT_SETTINGS.settings.ui.panels);
+      const key = panel === 'advanced' ? 'advancedOpen' : panel === 'addSite' ? 'addSiteOpen' : null;
+      if (!key) return false;
+      state.settings.settings.ui.panels[key] = toBool(isOpen);
       const ok = await saveSettings();
       return !!ok;
     },
@@ -518,4 +548,3 @@
   // Allows calling: FTData.GetAllSites(), etc.
   self.FTData = FocusData;
 })();
-
