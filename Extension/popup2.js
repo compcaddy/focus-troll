@@ -10,11 +10,15 @@
   document.addEventListener('DOMContentLoaded', () => {
     // Clear static items if present and render fresh
     renderWatchList();
+    setupOnDutyUI();
 
     // Re-render when sync storage changes
     try {
       chrome.storage.onChanged.addListener((changes, areaName) => {
-        if (areaName === 'sync') renderWatchList();
+        if (areaName === 'sync') {
+          renderWatchList();
+          updateOnDutyUI();
+        }
       });
     } catch (_) {}
 
@@ -26,6 +30,70 @@
         if (!d.contains(e.target)) d.open = false;
       });
     });
+
+    // Wire Add Custom Site
+    const nameInput = document.getElementById('addSiteName');
+    const urlInput = document.getElementById('addSiteUrl');
+    const addBtn = document.getElementById('addSiteButton');
+    const faviconImg = document.getElementById('addSiteFavicon');
+    if (addBtn && urlInput) {
+      const updateFavicon = () => {
+        const host = normalizeHost(urlInput.value || '');
+        if (faviconImg) {
+          const h = host || 'example.com';
+          faviconImg.src = getFaviconUrl(h);
+        }
+      };
+
+      const updateAddButtonState = () => {
+        const nameOk = !!(nameInput && nameInput.value.trim().length > 0);
+        const raw = (urlInput.value || '').trim();
+        const host = normalizeHost(raw);
+        // Allow empty URL (will default to example.com on add)
+        const urlOk = raw.length === 0 || !!host;
+        const ok = nameOk && urlOk;
+        addBtn.disabled = !ok;
+        if (ok) {
+          addBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+          addBtn.classList.add('hover:bg-p1/90');
+        } else {
+          addBtn.classList.add('opacity-80', 'cursor-not-allowed');
+          addBtn.classList.remove('hover:bg-p1/90');
+        }
+      };
+
+      const handler = async () => {
+        if (addBtn.disabled) return;
+        const name = (nameInput?.value || '').trim();
+        const urlRaw = (urlInput.value || '').trim();
+        let host = normalizeHost(urlRaw);
+        if (!host) {
+          // Default to example.com when URL is not provided or invalid
+          host = 'example.com';
+        }
+        const label = name || host;
+        // Default for custom when enabled is logOut
+        const ok = await FTData.AddSite(label, host, 'logOut');
+        if (!ok) {
+          window.Toast?.show('Site already exists', { type: 'info' });
+          return;
+        }
+        window.Toast?.show('Added to watchlist', { type: 'success' });
+        if (nameInput) nameInput.value = '';
+        urlInput.value = '';
+        updateFavicon();
+        updateAddButtonState();
+        renderWatchList();
+      };
+      addBtn.addEventListener('click', handler);
+      urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handler(); });
+      nameInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handler(); });
+      urlInput.addEventListener('input', () => { updateFavicon(); updateAddButtonState(); });
+      nameInput?.addEventListener('input', updateAddButtonState);
+      // initialize state
+      updateFavicon();
+      updateAddButtonState();
+    }
   });
 
   async function renderWatchList() {
@@ -50,6 +118,7 @@
       const name = site.name || host;
       const enabled = (site.blockMethod || 'none') !== 'none';
       const method = site.blockMethod || 'none';
+      const isCustom = !!site.isCustom;
       const li = tpl.content.firstElementChild.cloneNode(true);
 
       // Icon via Google favicon service
@@ -88,6 +157,8 @@
       // Dropdown actions
       const chooseLogout = li.querySelector('.js-choose-logout');
       const chooseHide = li.querySelector('.js-choose-hidefeed');
+      const hideFeedDesc = li.querySelector('.js-hidefeed-desc');
+      const chooseBlock = li.querySelector('.js-choose-blocksite');
       if (chooseLogout) {
         chooseLogout.addEventListener('click', async () => {
           await FTData.UpdateSiteBlockMethod(host, 'logOut');
@@ -95,8 +166,23 @@
         });
       }
       if (chooseHide) {
-        chooseHide.addEventListener('click', async () => {
-          await FTData.UpdateSiteBlockMethod(host, 'hideFeed');
+        if (isCustom) {
+          // Disable hide feed for custom sites
+          chooseHide.classList.add('opacity-50', 'cursor-not-allowed');
+          if (hideFeedDesc) hideFeedDesc.textContent = 'Not available on custom sites';
+          chooseHide.addEventListener('click', () => {
+            window.Toast?.show('Hide Feed not available on custom sites', { type: 'info' });
+          });
+        } else {
+          chooseHide.addEventListener('click', async () => {
+            await FTData.UpdateSiteBlockMethod(host, 'hideFeed');
+            renderWatchList();
+          });
+        }
+      }
+      if (chooseBlock) {
+        chooseBlock.addEventListener('click', async () => {
+          await FTData.UpdateSiteBlockMethod(host, 'blockSite');
           renderWatchList();
         });
       }
@@ -123,6 +209,34 @@
     });
   }
 
+  async function setupOnDutyUI() {
+    await updateOnDutyUI();
+    const toggle = document.getElementById('onDutyToggle');
+    if (toggle) {
+      toggle.addEventListener('change', async (e) => {
+        const checked = !!e.target.checked;
+        await FTData.ToggleOnDuty(checked);
+        updateOnDutyUI();
+      });
+    }
+  }
+
+  async function updateOnDutyUI() {
+    if (!window.FTData) return;
+    try {
+      const data = await FTData.GetSettings();
+      const enabled = !!data?.settings?.onDuty?.enabled;
+      const toggle = document.getElementById('onDutyToggle');
+      const label = document.getElementById('onDutyLabel');
+      const overlay = document.getElementById('watchOverlay');
+      if (toggle) toggle.checked = enabled;
+      if (label) label.textContent = enabled ? 'Ünskrôll is on Duty' : 'Ünskrôll is off Duty';
+      if (overlay) overlay.classList.toggle('hidden', enabled);
+    } catch (e) {
+      console.error('Failed to update On Duty UI', e);
+    }
+  }
+
   function normalizeHost(input) {
     if (!input || typeof input !== 'string') return '';
     const trimmed = input.trim();
@@ -139,6 +253,10 @@
     }
   }
 
+  function getFaviconUrl(host) {
+    return `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${host}&size=16`;
+  }
+
   function updateSummary(summaryEl, labelEl, method) {
     if (!summaryEl || !labelEl) return;
     // Reset color classes
@@ -149,6 +267,8 @@
       labelEl.textContent = 'Auto Logout';
     } else if (method === 'hideFeed') {
       labelEl.textContent = 'Hide Feed';
+    } else if (method === 'blockSite') {
+      labelEl.textContent = 'Block Site';
     } else {
       labelEl.textContent = '';
     }

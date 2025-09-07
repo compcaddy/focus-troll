@@ -13,31 +13,30 @@
       <!-- Top header -->
       <header class="flex items-center justify-between mb-6">
         <div class="flex gap-3 items-center">
-          <div class="w-14 h-14">
+          <div class="w-18 h-18">
             <img src="/images/troll.png" alt="" />
           </div>
           <div>
-            <h1 class="text-xl font-extrabold leading-tight text-p1">
-              Meet Ünskrôll,
-            </h1>
-            <p class="text-n2 leading-snug font-medium text-sm">
+            <div class="flex items-baseline gap-2">
+              <h1 class="text-2xl font-extrabold leading-tight text-p1">
+                Meet Ünskrôll,
+              </h1>
+              <span class="text-base text-p1 opacity-85 font-normal">("OON-skrohl")</span>
+            </div>
+            <p class="text-n2 leading-snug font-medium text-base mt-1">
               <b>Your personal Focus Troll.</b><br />
-              He will help keep you on task, whether you like it or not.
+              He'll keep you on task, whether you like it or not.
             </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <span class="font-semibold">Ünskrôll on Duty</span>
-          <!-- Toggle -->
-          <a
-            href="/type-modal.html"
-            target="_blank"
-            class="relative inline-flex items-center cursor-pointer select-none">
-            <input type="checkbox" class="sr-only peer" checked />
-            <span
-              class="w-14 h-8 rounded-full bg-neutral-300 peer-checked:bg-p1 transition-colors relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-7 after:h-7 after:bg-white after:rounded-full after:shadow after:transition-all peer-checked:after:translate-x-6"></span>
-          </a>
+        <div class="flex items-center gap-3 text-lg me-6">
+          <span id="onDutyLabel" class="font-semibold">Ünskrôll is on Duty</span>
+          <!-- Toggle (wired in popup2.js) -->
+          <label id="onDutySwitch" class="relative inline-flex items-center cursor-pointer select-none">
+            <input id="onDutyToggle" type="checkbox" class="sr-only peer" />
+            <span class="w-14 h-8 rounded-full bg-neutral-300 peer-checked:bg-p1 transition-colors relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-7 after:h-7 after:bg-white after:rounded-full after:shadow after:transition-all peer-checked:after:translate-x-6"></span>
+          </label>
         </div>
       </header>
 
@@ -51,22 +50,23 @@
             <div class="grid grid-cols-2 gap-4 mb-5">
               <div>
                 <label class="block text-sm font-medium text-n1 mb-1">Site Name</label>
-                <input
+                <input id="addSiteName"
                   type="text"
                   placeholder="Twitch"
                   class="w-full h-12 rounded-xl border border-gray-200 focus:border-b-p1/50 focus:ring-2 focus:ring-p1/20 px-4 outline-none" />
               </div>
-              <div>
+              <div class="relative">
                 <label class="block text-sm font-medium text-n1 mb-1">Site URL</label>
-                <input
+                <input id="addSiteUrl"
                   type="url"
                   placeholder="https://www.twitch.com"
-                  class="w-full h-12 rounded-xl border border-gray-200 focus:border-p1/50 focus:ring-2 focus:ring-p1/20 px-4 outline-none" />
+                  class="w-full h-12 rounded-xl border border-gray-200 focus:border-p1/50 focus:ring-2 focus:ring-p1/20 px-4 pr-12 outline-none" />
+                <img id="addSiteFavicon" class="absolute right-3 top-[48px] -translate-y-1/2 w-6 h-6 rounded-md pointer-events-none" alt="" />
               </div>
             </div>
-            <button
-              class="inline-flex items-center justify-center gap-2 w-full h-12 bg-p1 hover:bg-p1/90 hover:cursor-pointer text-white font-semibold rounded-xl transition-colors">
-              Add to Ünskrôll's Watchlist
+            <button id="addSiteButton" disabled
+              class="inline-flex items-center justify-center gap-2 w-full h-12 bg-p1 text-white font-semibold rounded-xl transition-colors opacity-80 cursor-not-allowed">
+              Add to Watchlist
             </button>
           </section>
 
@@ -155,10 +155,10 @@
         </div>
 
         <!-- Right column -->
-        <div class="bg-white rounded-2xl shadow-card p-6">
+        <div class="bg-white rounded-2xl shadow-card p-6 relative">
           <div class="flex items-center justify-between mb-1">
             <h2 class="font-extrabold text-lg">Ünskrôll’s Watchlist</h2>
-            <span class="text-base font-bold text-n1 pr-8">Action</span>
+            <span class="text-base font-semibold text-n1 pr-3">Action</span>
           </div>
           <!-- Watchlist item template (used by popup2.js) -->
           <template id="watchItemTemplate">
@@ -171,9 +171,9 @@
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <span class="js-none-label hidden text-neutral-300 text-sm font-medium px-3 py-2">none</span>
+                <span class="js-none-label hidden text-neutral-300 text-sm font-medium px-4 py-2">none</span>
                 <details class="js-dropdown relative">
-                  <summary class="js-dropdown-summary list-none cursor-pointer select-none inline-flex items-center gap-1 text-sm font-medium px-3 py-2 rounded-lg hover:bg-neutral-50 bg-white">
+                  <summary class="js-dropdown-summary list-none cursor-pointer select-none inline-flex items-center gap-1 text-sm font-medium pl-3 pr-2 py-2 rounded-lg hover:bg-neutral-50 bg-white">
                     <span class="js-mode-label"></span>
                     <!-- Inline caret-down icon (no external icon font needed) -->
                     <svg aria-hidden="true" class="h-4 w-4 text-current" viewBox="0 0 20 20" fill="currentColor">
@@ -187,7 +187,11 @@
                     </li>
                     <li class="js-choose-hidefeed px-4 py-3 hover:bg-neutral-50 cursor-pointer">
                       <div class="text-sm font-semibold text-n1">Hide Feed</div>
-                      <div class="text-xs text-n2 leading-snug">Keep logged in but hide distracting content.</div>
+                      <div class="js-hidefeed-desc text-xs text-n2 leading-snug">Keep logged in but hide distracting content.</div>
+                    </li>
+                    <li class="js-choose-blocksite px-4 py-3 hover:bg-neutral-50 cursor-pointer">
+                      <div class="text-sm font-semibold text-n1">Block Site</div>
+                      <div class="text-xs text-n2 leading-snug">Completely block access to this site.</div>
                     </li>
                   </ul>
                 </details>
@@ -200,6 +204,12 @@
           </template>
 
           <ul id="watchList" class="divide-y divide-neutral-100 divide"></ul>
+          <!-- Off Duty overlay (shown when onDuty is false) -->
+          <div id="watchOverlay" class="hidden absolute inset-0 rounded-2xl bg-white/70 backdrop-blur-[1px] flex items-center justify-center">
+            <div class="text-center">
+              <p class="text-n2 text-sm font-medium">Off Duty — rules not active</p>
+            </div>
+          </div>
         </div>
       </main>
 
@@ -262,6 +272,7 @@
 
 
   <script src="data.js"></script>
+  <script src="toast.js"></script>
   <script src="popup2.js"></script>
   <script src="popup.js"></script>
 </body>

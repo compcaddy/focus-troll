@@ -4,7 +4,7 @@
   "main": "background.js",
   "scripts": {
     "build:css": "npx tailwindcss -i ./src/input.css -o ./tailwind.css --watch=false",
-    "build:copy": "rm -rf builds/dev && mkdir -p builds/dev && cp manifest.json popup.html popup.js popup2.js data.js background.js tailwind.css builds/dev/ && cp -r icons builds/dev/ && cp -r images builds/dev/",
+    "build:copy": "rm -rf builds/dev && mkdir -p builds/dev && cp manifest.json popup.html popup.js popup2.js toast.js data.js background.js tailwind.css builds/dev/ && cp -r icons builds/dev/ && cp -r images builds/dev/",
     "build": "npm run build:css && npm run build:copy",
     "build:watch": "npx tailwindcss -i ./src/input.css -o ./tailwind.css --watch",
     "test": "echo \"Error: no test specified\" && exit 1"

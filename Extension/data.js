@@ -23,7 +23,7 @@
   const MAX_ACTION_AGE_DAYS = 30; // or those within last 30 days
 
   // Allowed enums
-  const BLOCK_METHODS = new Set(['none', 'logOut', 'hideFeed']);
+  const BLOCK_METHODS = new Set(['none', 'logOut', 'hideFeed', 'blockSite']);
   const AUTO_LOGOUT_DELAYS = new Set(['0s', '15s', '5m', '1h', '24h']);
   const FEED_BYPASS_METHODS = new Set(['button', 'typing']);
 
@@ -518,5 +518,4 @@
   // Allows calling: FTData.GetAllSites(), etc.
   self.FTData = FocusData;
 })();
-
 
