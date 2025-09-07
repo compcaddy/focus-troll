@@ -1,0 +1,65 @@
+/* Rubik (Brand Font) */
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  --color-p1: #8dba38;
+  --color-p2: #705338;
+  --color-n1: #50524e;
+  --color-n2: #797a77;
+  --color-n3: #999999;
+  --color-bg1: #e6ebda;
+  --color-bg2: #f5faeb;
+  --color-success: #2a8c4e;
+  --color-warning: #cc8f29;
+  --color-danger: #bc2124;
+
+  --font-brand: "Rubik", sans-serif;
+}
+
+/* custom container class */
+@utility px-custom {
+  @apply px-4 2xl:container lg:px-8 xl:px-20 2xl:mx-auto;
+}
+
+/* border class for quick testing */
+@utility b {
+  @apply border border-red-600;
+}
+
+/* bg color change on different screen sizes (for responsive testing)*/
+@utility s {
+  @apply sm:bg-purple-200 md:bg-purple-400 lg:bg-purple-600 xl:bg-purple-800 2xl:bg-purple-950;
+}
+
+/* Custom styles for legacy components */
+.toggle-switch {
+  position: relative;
+  width: 2.75rem;
+  height: 1.5rem;
+  background-color: #d1d5db;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toggle-switch.active {
+  background-color: #8dba38;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: white;
+  border-radius: 9999px;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-switch.active .toggle-slider {
+  transform: translateX(1.25rem);
+}

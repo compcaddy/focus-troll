@@ -25,6 +25,11 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
+// Handle extension icon clicks - open settings in new tab
+chrome.action.onClicked.addListener((tab) => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('popup.html') });
+});
+
 console.log('Focus Troll: Background script loaded');
 
 // Store tab info before tabs are closed

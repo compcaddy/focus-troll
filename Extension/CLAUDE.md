@@ -99,9 +99,11 @@ Also clears localStorage and sessionStorage items matching auth patterns via con
 - Verify "Enable All" button states
 
 ## Build/Deploy
-- No build process required (vanilla HTML/CSS/JS)
-- Can be loaded as unpacked extension for development
-- Ready for Chrome Web Store submission
+- **Development Build**: `npm run build` - Generates Tailwind CSS and copies all files to `builds/dev/`
+- **CSS Only**: `npm run build:css` - Just regenerates Tailwind CSS
+- **Watch Mode**: `npm run build:watch` - Watches for changes and rebuilds CSS automatically
+- **Chrome Extension Loading**: Load unpacked extension from `builds/dev/` directory
+- **Requirements**: Node.js and npm installed for Tailwind CSS compilation
 
 ## Future Enhancement Ideas
 - Keyboard shortcuts for quick enable/disable
