@@ -159,6 +159,8 @@
       const chooseHide = li.querySelector('.js-choose-hidefeed');
       const hideFeedDesc = li.querySelector('.js-hidefeed-desc');
       const chooseBlock = li.querySelector('.js-choose-blocksite');
+      const chooseRemove = li.querySelector('.js-choose-remove');
+      const removeSep = li.querySelector('.js-remove-separator');
       if (chooseLogout) {
         chooseLogout.addEventListener('click', async () => {
           await FTData.UpdateSiteBlockMethod(host, 'logOut');
@@ -185,6 +187,26 @@
           await FTData.UpdateSiteBlockMethod(host, 'blockSite');
           renderWatchList();
         });
+      }
+
+      // Remove for custom sites only
+      if (chooseRemove && removeSep) {
+        if (!isCustom) {
+          chooseRemove.style.display = 'none';
+          removeSep.style.display = 'none';
+        } else {
+          chooseRemove.addEventListener('click', async () => {
+            const ok = confirm(`Remove ${name} from the watchlist?`);
+            if (!ok) return;
+            const removed = await FTData.RemoveSite(host);
+            if (removed) {
+              window.Toast?.show('Removed from watchlist', { type: 'success' });
+              renderWatchList();
+            } else {
+              window.Toast?.show('Could not remove site', { type: 'error' });
+            }
+          });
+        }
       }
 
       // Toggle setup

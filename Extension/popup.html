@@ -9,28 +9,12 @@
 <body class="bg-bg1 text-n1 antialiased font-brand">
 
   <div class="hidden min-[1200px]:block">
-    <div class="mx-auto max-w-[1200px] px-10 py-12">
+    <div class="mx-auto max-w-[1200px] px-10 py-6">
       <!-- Top header -->
       <header class="flex items-center justify-between mb-6">
-        <div class="flex gap-3 items-center">
-          <div class="w-18 h-18">
-            <img src="/images/troll.png" alt="" />
-          </div>
-          <div>
-            <div class="flex items-baseline gap-2">
-              <h1 class="text-2xl font-extrabold leading-tight text-p1">
-                Meet Ünskrôll,
-              </h1>
-              <span class="text-base text-p1 opacity-85 font-normal">("OON-skrohl")</span>
-            </div>
-            <p class="text-n2 leading-snug font-medium text-base mt-1">
-              <b>Your personal Focus Troll.</b><br />
-              He'll keep you on task, whether you like it or not.
-            </p>
-          </div>
-        </div>
 
-        <div class="flex items-center gap-3 text-lg me-6">
+
+        <div class="flex items-center gap-3 text-lg ml-auto mr-5">
           <span id="onDutyLabel" class="font-semibold">Ünskrôll is on Duty</span>
           <!-- Toggle (wired in popup2.js) -->
           <label id="onDutySwitch" class="relative inline-flex items-center cursor-pointer select-none">
@@ -44,180 +28,27 @@
       <main class="grid grid-cols-2 gap-6">
         <!-- Left column -->
         <div class="flex flex-col gap-6">
-          <!-- Focus Settings Panel -->
-          <section class="bg-white rounded-2xl shadow-card p-6 relative">
-            <div id="advancedHeader" class="flex items-center justify-between mb-3 cursor-pointer select-none">
-              <h2 class="font-extrabold text-lg">Advanced Settings</h2>
-              <button id="advancedCaret" class="text-n1 hover:text-p1 transition-colors cursor-pointer" aria-label="Toggle Advanced Settings">
-                <svg class="w-8 h-8 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                </svg>
-              </button>
-            </div>
-            <div id="advancedContent">
-
-            <!-- Auto Logout Delay -->
-            <div class="mb-4">
-              <div class="flex items-center justify-between">
-                <label class="block text-sm font-medium text-n1">Auto Logout Delay</label>
-                <details class="relative js-ald">
-                  <summary class="js-ald-summary list-none cursor-pointer select-none inline-flex items-center gap-1 text-sm font-medium px-3 py-2 rounded-lg hover:bg-neutral-50 bg-white">
-                    <span class="js-ald-label"></span>
-                    <svg aria-hidden="true" class="h-4 w-4 text-current" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.172l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                    </svg>
-                  </summary>
-                  <ul class="absolute right-0 mt-1 w-56 bg-white border border-neutral-200 rounded-lg shadow-lg overflow-hidden z-20">
-                    <li class="js-ald-0s px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">Immediately</li>
-                    <li class="js-ald-15s px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">15 seconds</li>
-                    <li class="js-ald-5m px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">5 minutes</li>
-                    <li class="js-ald-1h px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">1 hour</li>
-                    <li class="js-ald-24h px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">24 hours</li>
-                  </ul>
-                </details>
-              </div>
-              <p class="text-xs text-n2 max-w-[70%]">How long to wait after closing a site's tabs before Ünskrôll logs you out.</p>
-            </div>
-
-            <!-- Feed Bypass Method -->
-            <div class="mb-4">
-              <div class="flex items-center justify-between">
-                <label class="block text-sm font-medium text-n1">Feed Bypass Method</label>
-                <details class="relative js-fbm">
-                  <summary class="js-fbm-summary list-none cursor-pointer select-none inline-flex items-center gap-1 text-sm font-medium px-3 py-2 rounded-lg hover:bg-neutral-50 bg-white">
-                    <span class="js-fbm-label"></span>
-                    <svg aria-hidden="true" class="h-4 w-4 text-current" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.172l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                    </svg>
-                  </summary>
-                  <ul class="absolute right-0 mt-1 w-64 bg-white border border-neutral-200 rounded-lg shadow-lg overflow-hidden z-20">
-                    <li class="js-fbm-button px-4 py-3 hover:bg-neutral-50 cursor-pointer">
-                      <div class="text-sm font-semibold text-n1">Button</div>
-                      <div class="text-xs text-n2 leading-snug">Show a confirm button to continue.</div>
-                    </li>
-                    <li class="js-fbm-typing px-4 py-3 hover:bg-neutral-50 cursor-pointer">
-                      <div class="text-sm font-semibold text-n1">Typing</div>
-                      <div class="text-xs text-n2 leading-snug">Require typing a phrase to proceed.</div>
-                    </li>
-                  </ul>
-                </details>
-              </div>
-              <p class="text-xs text-n2 max-w-[70%]">How you'd like to be able to bypass blocked feeds/pages.</p>
-
-            </div>
-
-            <!-- Working Hours -->
-            <div class="mb-4">
-              <div class="flex items-center justify-between mb-3">
-                <label class="block text-sm font-medium text-n1">Working Hours</label>
-                <div class="flex items-center gap-2 text-n2">
-                  <label class="relative inline-flex items-center cursor-pointer select-none">
-                    <input id="alwaysOnToggle" type="checkbox" class="sr-only peer" />
-                    <span class="w-12 h-7 rounded-full bg-gray-200 peer-checked:bg-p1 transition-colors relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-6 after:h-6 after:bg-white after:rounded-full after:shadow after:transition-all peer-checked:after:translate-x-5"></span>
-                  </label>
-                  <span class="text-sm">All Day</span>
-                </div>
-              </div>
-
-              <div id="scheduleFields" class="space-y-3">
-                <div class="grid grid-cols-2 gap-4">
-                  <!-- Start Time -->
-                  <div>
-                    <label class="block text-xs text-n2 mb-1">Start Time</label>
-                    <div class="flex items-center gap-2">
-                      <select id="startHour" class="h-10 rounded-md border border-gray-200 px-2">
-                        <!-- 1..12 populated by JS -->
-                      </select>
-                      <span>:</span>
-                      <select id="startMinute" class="h-10 rounded-md border border-gray-200 px-2">
-                        <!-- 00..59 populated by JS -->
-                      </select>
-                      <select id="startAmPm" class="h-10 rounded-md border border-gray-200 px-2">
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  </div>
-                  <!-- End Time -->
-                  <div>
-                    <label class="block text-xs text-n2 mb-1">End Time</label>
-                    <div class="flex items-center gap-2">
-                      <select id="endHour" class="h-10 rounded-md border border-gray-200 px-2"></select>
-                      <span>:</span>
-                      <select id="endMinute" class="h-10 rounded-md border border-gray-200 px-2"></select>
-                      <select id="endAmPm" class="h-10 rounded-md border border-gray-200 px-2">
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Days of week -->
-                <div class="flex flex-wrap gap-2 mt-2">
-                  <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="monday">Mon</button>
-                  <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="tuesday">Tue</button>
-                  <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="wednesday">Wed</button>
-                  <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="thursday">Thu</button>
-                  <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="friday">Fri</button>
-                  <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="saturday">Sat</button>
-                  <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="sunday">Sun</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Auto Close Delay -->
-            <div class="mb-1">
-              <div class="flex items-center justify-between mb-1">
-                <label class="block text-sm font-medium text-n1">Auto-close Delay</label>
-                <div class="flex items-center gap-2">
-                  <input id="autoCloseDelay" type="number" min="1" max="10" class="w-16 h-9 rounded-md border border-gray-200 px-2" />
-                  <span class="text-sm text-n2">seconds</span>
-                </div>
-              </div>
-              <p class="text-xs text-n2 max-w-[70%]">Delay before Ünskrôll closes a tab.</p>
-
-            </div>
-            </div>
-          </section>
-
-          <!-- Add Custom Site -->
-          <section class="bg-white rounded-2xl shadow-card p-6">
-            <div id="addSiteHeader" class="flex items-center justify-between mb-3 cursor-pointer select-none">
-              <h2 class="font-extrabold text-lg">Add a Custom Site</h2>
-              <button id="addSiteCaret" class="text-n1 hover:text-p1 transition-colors cursor-pointer" aria-label="Toggle Add Site">
-                <svg class="w-8 h-8 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                </svg>
-              </button>
-            </div>
-            <div id="addSiteContent">
-            <div class="grid grid-cols-2 gap-4 mb-5">
-              <div>
-                <label class="block text-sm font-medium text-n1 mb-1">Site Name</label>
-                <input id="addSiteName"
-                  type="text"
-                  placeholder="Twitch"
-                  class="w-full h-12 rounded-xl border border-gray-200 focus:border-b-p1/50 focus:ring-2 focus:ring-p1/20 px-4 outline-none" />
-              </div>
-              <div class="relative">
-                <label class="block text-sm font-medium text-n1 mb-1">Site URL</label>
-                <input id="addSiteUrl"
-                  type="url"
-                  placeholder="https://www.twitch.com"
-                  class="w-full h-12 rounded-xl border border-gray-200 focus:border-p1/50 focus:ring-2 focus:ring-p1/20 px-4 pr-12 outline-none" />
-                <img id="addSiteFavicon" class="absolute right-3 top-[48px] -translate-y-1/2 w-6 h-6 rounded-md pointer-events-none" alt="" />
-              </div>
-            </div>
-            <button id="addSiteButton" disabled
-              class="inline-flex items-center justify-center gap-2 w-full h-12 bg-p1 text-white font-semibold rounded-xl transition-colors opacity-80 cursor-not-allowed">
-              Add to Watchlist
-            </button>
-            </div>
-          </section>
-
           <!-- How it works -->
           <section class="bg-white rounded-2xl shadow-card p-6">
+
+            <div class="flex gap-3 items-center">
+              <div class="w-18 h-18">
+                <img src="/images/troll.png" alt="" />
+              </div>
+              <div>
+                <div class="flex items-baseline gap-2">
+                  <h1 class="text-2xl font-extrabold leading-tight text-p1">
+                    Meet Ünskrôll,
+                  </h1>
+                  <span class="text-base text-p1 opacity-85 font-normal">("OON-skrohl")</span>
+                </div>
+                <p class="text-n2 leading-snug font-medium text-base mt-1">
+                  <b>Your personal Focus Troll.</b><br />
+                  He'll keep you on task, whether you like it or not.
+                </p>
+              </div>
+            </div>
+
             <h2 class="font-extrabold text-lg mb-5">How Focus Troll Works</h2>
 
             <div class="grid grid-cols-2 gap-6">
@@ -278,8 +109,182 @@
             </div>
           </section>
 
-          <!-- Privacy -->
+          <!-- Focus Settings Panel -->
+          <section class="bg-white rounded-2xl shadow-card p-6 relative">
+            <div id="advancedHeader" class="flex items-center justify-between mb-3 cursor-pointer select-none">
+              <h2 class="font-extrabold text-lg">Advanced Settings</h2>
+              <button id="advancedCaret" class="text-n1 hover:text-p1 transition-colors cursor-pointer" aria-label="Toggle Advanced Settings">
+                <svg class="w-8 h-8 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            <div id="advancedContent">
+
+              <!-- Auto Logout Delay -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between">
+                  <label class="block text-sm font-medium text-n1">Auto Logout Delay</label>
+                  <details class="relative js-ald">
+                    <summary class="js-ald-summary list-none cursor-pointer select-none inline-flex items-center gap-1 text-sm font-medium px-3 py-2 rounded-lg hover:bg-neutral-50 bg-white">
+                      <span class="js-ald-label"></span>
+                      <svg aria-hidden="true" class="h-4 w-4 text-current" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.172l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                      </svg>
+                    </summary>
+                    <ul class="absolute right-0 mt-1 w-56 bg-white border border-neutral-200 rounded-lg shadow-lg overflow-hidden z-20">
+                      <li class="js-ald-0s px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">Immediately</li>
+                      <li class="js-ald-15s px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">15 seconds</li>
+                      <li class="js-ald-5m px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">5 minutes</li>
+                      <li class="js-ald-1h px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">1 hour</li>
+                      <li class="js-ald-24h px-4 py-2 hover:bg-neutral-50 cursor-pointer text-sm">24 hours</li>
+                    </ul>
+                  </details>
+                </div>
+                <p class="text-xs text-n2 max-w-[70%]">How long to wait after closing a site's tabs before Ünskrôll logs you out.</p>
+              </div>
+
+              <!-- Feed Bypass Method -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between">
+                  <label class="block text-sm font-medium text-n1">Feed Bypass Method</label>
+                  <details class="relative js-fbm">
+                    <summary class="js-fbm-summary list-none cursor-pointer select-none inline-flex items-center gap-1 text-sm font-medium px-3 py-2 rounded-lg hover:bg-neutral-50 bg-white">
+                      <span class="js-fbm-label"></span>
+                      <svg aria-hidden="true" class="h-4 w-4 text-current" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.172l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                      </svg>
+                    </summary>
+                    <ul class="absolute right-0 mt-1 w-64 bg-white border border-neutral-200 rounded-lg shadow-lg overflow-hidden z-20">
+                      <li class="js-fbm-button px-4 py-3 hover:bg-neutral-50 cursor-pointer">
+                        <div class="text-sm font-semibold text-n1">Button</div>
+                        <div class="text-xs text-n2 leading-snug">Show a confirm button to continue.</div>
+                      </li>
+                      <li class="js-fbm-typing px-4 py-3 hover:bg-neutral-50 cursor-pointer">
+                        <div class="text-sm font-semibold text-n1">Typing</div>
+                        <div class="text-xs text-n2 leading-snug">Require typing a phrase to proceed.</div>
+                      </li>
+                    </ul>
+                  </details>
+                </div>
+                <p class="text-xs text-n2 max-w-[70%]">How you'd like to be able to bypass blocked feeds/pages.</p>
+
+              </div>
+
+              <!-- Working Hours -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-3">
+                  <label class="block text-sm font-medium text-n1">Working Hours</label>
+                  <div class="flex items-center gap-2 text-n2">
+                    <label class="relative inline-flex items-center cursor-pointer select-none">
+                      <input id="alwaysOnToggle" type="checkbox" class="sr-only peer" />
+                      <span class="w-12 h-7 rounded-full bg-gray-200 peer-checked:bg-p1 transition-colors relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-6 after:h-6 after:bg-white after:rounded-full after:shadow after:transition-all peer-checked:after:translate-x-5"></span>
+                    </label>
+                    <span class="text-sm">All Day</span>
+                  </div>
+                </div>
+
+                <div id="scheduleFields" class="space-y-3">
+                  <div class="grid grid-cols-2 gap-4">
+                    <!-- Start Time -->
+                    <div>
+                      <label class="block text-xs text-n2 mb-1">Start Time</label>
+                      <div class="flex items-center gap-2">
+                        <select id="startHour" class="h-10 rounded-md border border-gray-200 px-2">
+                          <!-- 1..12 populated by JS -->
+                        </select>
+                        <span>:</span>
+                        <select id="startMinute" class="h-10 rounded-md border border-gray-200 px-2">
+                          <!-- 00..59 populated by JS -->
+                        </select>
+                        <select id="startAmPm" class="h-10 rounded-md border border-gray-200 px-2">
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                      </div>
+                    </div>
+                    <!-- End Time -->
+                    <div>
+                      <label class="block text-xs text-n2 mb-1">End Time</label>
+                      <div class="flex items-center gap-2">
+                        <select id="endHour" class="h-10 rounded-md border border-gray-200 px-2"></select>
+                        <span>:</span>
+                        <select id="endMinute" class="h-10 rounded-md border border-gray-200 px-2"></select>
+                        <select id="endAmPm" class="h-10 rounded-md border border-gray-200 px-2">
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Days of week -->
+                  <div class="flex flex-wrap gap-2 mt-2">
+                    <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="monday">Mon</button>
+                    <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="tuesday">Tue</button>
+                    <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="wednesday">Wed</button>
+                    <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="thursday">Thu</button>
+                    <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="friday">Fri</button>
+                    <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="saturday">Sat</button>
+                    <button class="js-day px-3 py-1 rounded-full text-xs border border-neutral-200" data-day="sunday">Sun</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Auto Close Delay -->
+              <div class="mb-1">
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-sm font-medium text-n1">Auto-close Delay</label>
+                  <div class="flex items-center gap-2">
+                    <input id="autoCloseDelay" type="number" min="1" max="10" class="w-16 h-9 rounded-md border border-gray-200 px-2" />
+                    <span class="text-sm text-n2">seconds</span>
+                  </div>
+                </div>
+                <p class="text-xs text-n2 max-w-[70%]">Delay before Ünskrôll closes a tab.</p>
+
+              </div>
+            </div>
+          </section>
+
+          <!-- Add Custom Site -->
           <section class="bg-white rounded-2xl shadow-card p-6">
+            <div id="addSiteHeader" class="flex items-center justify-between mb-3 cursor-pointer select-none">
+              <h2 class="font-extrabold text-lg">Add a Custom Site</h2>
+              <button id="addSiteCaret" class="text-n1 hover:text-p1 transition-colors cursor-pointer" aria-label="Toggle Add Site">
+                <svg class="w-8 h-8 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            <div id="addSiteContent">
+              <div class="grid grid-cols-2 gap-4 mb-5">
+                <div>
+                  <label class="block text-sm font-medium text-n1 mb-1">Site Name</label>
+                  <input id="addSiteName"
+                    type="text"
+                    placeholder="Twitch"
+                    class="w-full h-12 rounded-xl border border-gray-200 focus:border-b-p1/50 focus:ring-2 focus:ring-p1/20 px-4 outline-none" />
+                </div>
+                <div class="relative">
+                  <label class="block text-sm font-medium text-n1 mb-1">Site URL</label>
+                  <input id="addSiteUrl"
+                    type="url"
+                    placeholder="https://www.twitch.com"
+                    class="w-full h-12 rounded-xl border border-gray-200 focus:border-p1/50 focus:ring-2 focus:ring-p1/20 px-4 pr-12 outline-none" />
+                  <img id="addSiteFavicon" class="absolute right-3 top-[48px] -translate-y-1/2 w-6 h-6 rounded-md pointer-events-none" alt="" />
+                </div>
+              </div>
+              <button id="addSiteButton" disabled
+                class="inline-flex items-center justify-center gap-2 w-full h-12 bg-p1 text-white font-semibold rounded-xl transition-colors opacity-80 cursor-not-allowed">
+                Add to Watchlist
+              </button>
+            </div>
+          </section>
+
+
+
+          <!-- Privacy -->
+          <!-- <section class="bg-white rounded-2xl shadow-card p-6">
             <h2 class="font-extrabold text-lg mb-4">
               Privacy and permissions
             </h2>
@@ -297,7 +302,7 @@
                 leaves your device
               </li>
             </ul>
-          </section>
+          </section> -->
         </div>
 
         <!-- Right column -->
@@ -338,6 +343,11 @@
                     <li class="js-choose-blocksite px-4 py-3 hover:bg-neutral-50 cursor-pointer">
                       <div class="text-sm font-semibold text-n1">Block Site</div>
                       <div class="text-xs text-n2 leading-snug">Completely block access to this site.</div>
+                    </li>
+                    <!-- Remove for custom sites -->
+                    <li class="js-remove-separator my-1 h-px bg-neutral-200"></li>
+                    <li class="js-choose-remove px-4 py-3 hover:bg-neutral-50 cursor-pointer">
+                      <div class="text-sm font-semibold text-red-600">Remove from Watchlist</div>
                     </li>
                   </ul>
                 </details>
