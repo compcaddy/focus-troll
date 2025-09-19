@@ -32,9 +32,10 @@
     });
 
     // Wire Add Custom Site
-    const nameInput = document.getElementById('addSiteName');
     const urlInput = document.getElementById('addSiteUrl');
     const addBtn = document.getElementById('addSiteButton');
+    const methodSelect = document.getElementById('addSiteMethod');
+    const defaultMethodValue = methodSelect?.value || 'logOut';
     const faviconImg = document.getElementById('addSiteFavicon');
     if (addBtn && urlInput) {
       const updateFavicon = () => {
@@ -46,12 +47,11 @@
       };
 
       const updateAddButtonState = () => {
-        const nameOk = !!(nameInput && nameInput.value.trim().length > 0);
         const raw = (urlInput.value || '').trim();
         const host = normalizeHost(raw);
-        // Allow empty URL (will default to example.com on add)
-        const urlOk = raw.length === 0 || !!host;
-        const ok = nameOk && urlOk;
+        const urlOk = !!host && host.includes('.');
+        const methodOk = !!(methodSelect && methodSelect.value);
+        const ok = urlOk && methodOk;
         addBtn.disabled = !ok;
         if (ok) {
           addBtn.classList.remove('opacity-80', 'cursor-not-allowed');
@@ -64,32 +64,34 @@
 
       const handler = async () => {
         if (addBtn.disabled) return;
-        const name = (nameInput?.value || '').trim();
         const urlRaw = (urlInput.value || '').trim();
-        let host = normalizeHost(urlRaw);
+        const host = normalizeHost(urlRaw);
         if (!host) {
-          // Default to example.com when URL is not provided or invalid
-          host = 'example.com';
+          window.Toast?.show('Enter a valid site URL', { type: 'info' });
+          return;
         }
-        const label = name || host;
-        // Default for custom when enabled is logOut
-        const ok = await FTData.AddSite(label, host, 'logOut');
+        if (!host.includes('.')) {
+          window.Toast?.show('Enter a full domain (e.g., example.com)', { type: 'info' });
+          return;
+        }
+        const label = deriveSiteName(host);
+        const methodValue = methodSelect?.value || defaultMethodValue;
+        const ok = await FTData.AddSite(label, host, methodValue);
         if (!ok) {
           window.Toast?.show('Site already exists', { type: 'info' });
           return;
         }
         window.Toast?.show('Added to watchlist', { type: 'success' });
-        if (nameInput) nameInput.value = '';
         urlInput.value = '';
+        if (methodSelect) methodSelect.value = defaultMethodValue;
         updateFavicon();
         updateAddButtonState();
         renderWatchList();
       };
       addBtn.addEventListener('click', handler);
       urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handler(); });
-      nameInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handler(); });
       urlInput.addEventListener('input', () => { updateFavicon(); updateAddButtonState(); });
-      nameInput?.addEventListener('input', updateAddButtonState);
+      methodSelect?.addEventListener('change', updateAddButtonState);
       // initialize state
       updateFavicon();
       updateAddButtonState();
@@ -112,6 +114,8 @@
 
     const tpl = document.getElementById('watchItemTemplate');
     if (!tpl) return;
+    const watchAlert = document.getElementById('watchListAlert');
+    let activeCount = 0;
 
     sites.forEach((site) => {
       const host = normalizeHost(site.url || '');
@@ -132,27 +136,47 @@
       const nameEl = li.querySelector('.js-site-name');
       const domainEl = li.querySelector('.js-site-domain');
       if (nameEl) nameEl.textContent = name;
-      if (domainEl) domainEl.textContent = host; // show domain without www.
+      if (domainEl) {
+        domainEl.textContent = host; // show domain without www.
+        domainEl.classList.add('cursor-pointer');
+        domainEl.addEventListener('mouseenter', () => {
+          domainEl.style.textDecoration = 'underline';
+        });
+        domainEl.addEventListener('mouseleave', () => {
+          domainEl.style.textDecoration = 'none';
+        });
+        domainEl.addEventListener('click', () => {
+          const url = host.includes('://') ? host : `https://${host}`;
+          if (chrome?.tabs?.create) {
+            chrome.tabs.create({ url });
+          } else {
+            window.open(url, '_blank');
+          }
+        });
+      }
 
       // Dropdown setup
       const details = li.querySelector('.js-dropdown');
       const summary = li.querySelector('.js-dropdown-summary');
       const label = li.querySelector('.js-mode-label');
       const noneLabel = li.querySelector('.js-none-label');
-      updateSummary(summary, label, method);
+      const effectiveMethod = method === 'none' ? (site.lastMethod || 'logOut') : method;
+      updateSummary(summary, label, effectiveMethod);
+      if (noneLabel) noneLabel.style.display = 'none';
       details.open = false;
 
-      // Hide dropdown if disabled and show "None" label
-      if (!enabled && details) {
-        details.style.display = 'none';
-        if (noneLabel) {
-          noneLabel.style.display = 'inline-flex';
-          noneLabel.textContent = 'none';
-        }
-      } else {
-        if (details) details.style.display = '';
-        if (noneLabel) noneLabel.style.display = 'none';
+      if (summary) {
+        summary.style.pointerEvents = enabled ? '' : 'none';
+        summary.classList.toggle('opacity-60', !enabled);
+        summary.classList.toggle('text-p1', enabled);
+        summary.classList.toggle('text-n2', !enabled);
       }
+      if (details) {
+        details.style.pointerEvents = enabled ? '' : 'none';
+        details.classList.toggle('opacity-60', !enabled);
+      }
+
+      if (enabled) activeCount += 1;
 
       // Dropdown actions
       const chooseLogout = li.querySelector('.js-choose-logout');
@@ -236,6 +260,8 @@
 
       list.appendChild(li);
     });
+
+    if (watchAlert) watchAlert.classList.toggle('hidden', activeCount > 0);
   }
 
   async function setupOnDutyUI() {
@@ -667,12 +693,20 @@
     return `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${host}&size=16`;
   }
 
+  function deriveSiteName(host) {
+    if (!host) return 'Site';
+    let core = host.toLowerCase();
+    if (core.startsWith('www.')) core = core.slice(4);
+    const primary = core.split('.')[0] || core;
+    const words = primary.split(/[-_]/g).filter(Boolean);
+    const title = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    return title || primary.charAt(0).toUpperCase() + primary.slice(1);
+  }
+
   function updateSummary(summaryEl, labelEl, method) {
     if (!summaryEl || !labelEl) return;
-    // Reset color classes
+    // Reset color highlight classes
     summaryEl.classList.remove('text-danger', 'text-warning');
-    // Always use primary green for the action label
-    if (!summaryEl.classList.contains('text-p1')) summaryEl.classList.add('text-p1');
     if (method === 'logOut') {
       labelEl.textContent = 'Auto Logout';
     } else if (method === 'hideFeed') {

@@ -56,7 +56,7 @@
                   <i class="fa-regular fa-right-from-bracket text-xl"></i>
                 </div>
                 <div>
-                  <p class="font-semibold">Auto Logout</p>
+                  <p class="font-semibold text-base">Auto Logout</p>
                   <p class="text-n2 text-sm">
                     He'll log you out of a website after you close the Tab, forcing intention.
                   </p>
@@ -69,7 +69,7 @@
                   <i class="fa-regular fa-eye-slash text-xl"></i>
                 </div>
                 <div>
-                  <p class="font-semibold">Hide Feed</p>
+                  <p class="font-semibold text-base">Hide Feed</p>
                   <p class="text-n2 text-sm">
                     He'll hide the main addictive Feed but allow access to other areas.
                   </p>
@@ -82,7 +82,7 @@
                   <i class="fa-regular fa-stopwatch text-xl"></i>
                 </div>
                 <div>
-                  <p class="font-semibold">Mindful Timer</p>
+                  <p class="font-semibold text-base">Mindful Timer</p>
                   <p class="text-n2 text-sm">
                     He'll make you wait before using the website each time you access it.
                   </p>
@@ -95,7 +95,7 @@
                   <i class="fa-regular fa-paint-roller text-xl"></i>
                 </div>
                 <div>
-                  <p class="font-semibold">Grayscale</p>
+                  <p class="font-semibold text-base">Grayscale</p>
                   <p class="text-n2 text-sm">
                     He will take all the color and fun from the website, reducing dopamine.
                   </p>
@@ -389,6 +389,12 @@
             </li>
           </template>
 
+          <div id="watchListAlert" class="hidden flex mt-4 -mx-1 font-semibold rounded-xl border border-neutral-200 bg-[#FFC2C2] bg-opacity-50 text-gray-800 ps-4 pe-2 py-3 shadow-card text-sm">
+            <i class="fa fa-warning relative -left-0.5 top-1"></i>
+            You haven't toggled any sites on for Ün-skrôll to watch.
+            <div class="flex-1"></div>
+            <i class="fa-regular fa-hand-point-down text-xl"></i>
+          </div>
           <ul id="watchList" class="divide-y divide-neutral-100 divide"></ul>
           <!-- Off Duty overlay (shown when onDuty is false) -->
           <div id="watchOverlay" class="hidden absolute top-16 inset-0 bg-[#e6ebda]/70 backdrop-blur-[2px] flex justify-center">
@@ -410,13 +416,6 @@
             </div>
             <div id="addSiteContent">
               <div class="grid grid-cols-2 gap-4 mb-5">
-                <div>
-                  <label class="block text-sm font-medium text-n1 mb-1">Site Name</label>
-                  <input id="addSiteName"
-                    type="text"
-                    placeholder="Twitch"
-                    class="w-full h-12 rounded-xl border border-gray-200 focus:border-b-p1/50 focus:ring-2 focus:ring-p1/20 px-4 outline-none" />
-                </div>
                 <div class="relative">
                   <label class="block text-sm font-medium text-n1 mb-1">Site URL</label>
                   <input id="addSiteUrl"
@@ -424,6 +423,15 @@
                     placeholder="https://www.twitch.tv"
                     class="w-full h-12 rounded-xl border border-gray-200 focus:border-p1/50 focus:ring-2 focus:ring-p1/20 px-4 pr-12 outline-none" />
                   <img id="addSiteFavicon" class="absolute right-3 top-[48px] -translate-y-1/2 w-6 h-6 rounded-md pointer-events-none" alt="" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-n1 mb-1">Focus Method</label>
+                  <select id="addSiteMethod"
+                    class="w-full h-12 rounded-xl border border-gray-200 focus:border-p1/50 focus:ring-2 focus:ring-p1/20 px-4 outline-none">
+                    <option value="logOut">Auto Logout</option>
+                    <option value="mindfulTimer">Mindful Timer</option>
+                    <option value="grayscale">Grayscale</option>
+                  </select>
                 </div>
               </div>
               <button id="addSiteButton" disabled
@@ -448,52 +456,6 @@
       </footer>
     </div>
   </div>
-
-  <div class="header" style="display:none !important;">
-    <h1>Focus Troll</h1>
-    <p>Auto-logout from social media when tabs close</p>
-  </div>
-  <div class="setup-header" id="setupHeader">
-    <h2>Welcome to Focus Troll!</h2>
-    <!-- <p>Let's set up your focus monitoring</p> -->
-  </div>
-  <div class="main-container">
-
-    <div class="left-column">
-
-    </div>
-
-    <div class="right-column">
-      <div class="section">
-        <div class="enable-all-container">
-          <span style="float:left; font-weight: 400;">Watched Sites</span>
-          <button class="enable-all-btn" id="enableAllBtn" style="display:none;">Enable Permissions for All</button>
-        </div>
-        <div id="defaultSites"></div>
-      </div>
-
-      <div class="section">
-        <!-- <div class="section-title">Custom Sites</div> -->
-        <div id="customSites">
-          <div class="empty-state" style="display:none;">No custom sites added</div>
-        </div>
-        <div class="add-site">
-          <input type="text" id="newSiteInput" placeholder="Enter custom domain (example.com)">
-          <button class="add-btn" id="addSiteBtn">Add</button>
-        </div>
-      </div>
-
-      <div class="status" id="status">
-        Extension is active
-      </div>
-
-      <button class="setup-done" id="setupDone" style="display: none;">
-        All Done. Start Monitoring!
-      </button>
-    </div>
-  </div>
-
-
 
   <script src="data.js"></script>
   <script src="toast.js"></script>

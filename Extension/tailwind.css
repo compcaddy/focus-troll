@@ -16,6 +16,7 @@
     --color-purple-950: oklch(29.1% 0.149 302.717);
     --color-gray-200: oklch(92.8% 0.006 264.531);
     --color-gray-700: oklch(37.3% 0.034 259.733);
+    --color-gray-800: oklch(27.8% 0.033 256.848);
     --color-neutral-50: oklch(98.5% 0 0);
     --color-neutral-100: oklch(97% 0 0);
     --color-neutral-200: oklch(92.2% 0 0);
@@ -237,6 +238,9 @@
   .inset-0 {
     inset: calc(var(--spacing) * 0);
   }
+  .top-1 {
+    top: calc(var(--spacing) * 1);
+  }
   .top-4 {
     top: calc(var(--spacing) * 4);
   }
@@ -254,6 +258,9 @@
   }
   .right-4 {
     right: calc(var(--spacing) * 4);
+  }
+  .-left-0\.5 {
+    left: calc(var(--spacing) * -0.5);
   }
   .z-20 {
     z-index: 20;
@@ -279,6 +286,9 @@
       max-width: 96rem;
     }
   }
+  .-mx-1 {
+    margin-inline: calc(var(--spacing) * -1);
+  }
   .mx-auto {
     margin-inline: auto;
   }
@@ -290,6 +300,9 @@
   }
   .mt-3 {
     margin-top: calc(var(--spacing) * 3);
+  }
+  .mt-4 {
+    margin-top: calc(var(--spacing) * 4);
   }
   .mt-6 {
     margin-top: calc(var(--spacing) * 6);
@@ -547,6 +560,9 @@
       background-color: var(--color-purple-950);
     }
   }
+  .bg-\[\#FFC2C2\] {
+    background-color: #FFC2C2;
+  }
   .bg-\[\#e6ebda\]\/70 {
     background-color: color-mix(in oklab, #e6ebda 70%, transparent);
   }
@@ -615,6 +631,12 @@
   }
   .ps-1 {
     padding-inline-start: calc(var(--spacing) * 1);
+  }
+  .ps-4 {
+    padding-inline-start: calc(var(--spacing) * 4);
+  }
+  .pe-2 {
+    padding-inline-end: calc(var(--spacing) * 2);
   }
   .pt-4 {
     padding-top: calc(var(--spacing) * 4);
@@ -706,6 +728,9 @@
   .text-gray-700 {
     color: var(--color-gray-700);
   }
+  .text-gray-800 {
+    color: var(--color-gray-800);
+  }
   .text-n1 {
     color: var(--color-n1);
   }
@@ -730,6 +755,9 @@
   .text-white {
     color: var(--color-white);
   }
+  .underline {
+    text-decoration-line: underline;
+  }
   .antialiased {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -739,6 +767,9 @@
   }
   .opacity-50 {
     opacity: 50%;
+  }
+  .opacity-60 {
+    opacity: 60%;
   }
   .opacity-80 {
     opacity: 80%;
@@ -898,14 +929,6 @@
       border-color: color-mix(in srgb, #8dba38 50%, transparent);
       @supports (color: color-mix(in lab, red, red)) {
         border-color: color-mix(in oklab, var(--color-p1) 50%, transparent);
-      }
-    }
-  }
-  .focus\:border-b-p1\/50 {
-    &:focus {
-      border-bottom-color: color-mix(in srgb, #8dba38 50%, transparent);
-      @supports (color: color-mix(in lab, red, red)) {
-        border-bottom-color: color-mix(in oklab, var(--color-p1) 50%, transparent);
       }
     }
   }

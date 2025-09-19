@@ -31,13 +31,13 @@
 
   // Default sites (built-in, not custom)
   const DEFAULT_SITES = [
-    { name: 'Facebook', url: 'facebook.com', blockMethod: 'none', isCustom: false },
-    { name: 'Instagram', url: 'instagram.com', blockMethod: 'none', isCustom: false },
-    { name: 'YouTube', url: 'youtube.com', blockMethod: 'none', isCustom: false },
-    { name: 'TikTok', url: 'tiktok.com', blockMethod: 'none', isCustom: false },
-    { name: 'Reddit', url: 'reddit.com', blockMethod: 'none', isCustom: false },
-    { name: 'X (Twitter)', url: 'x.com', blockMethod: 'none', isCustom: false },
-    { name: 'LinkedIn', url: 'linkedin.com', blockMethod: 'none', isCustom: false },
+    { name: 'Facebook', url: 'facebook.com', blockMethod: 'none', lastMethod: 'logOut', isCustom: false },
+    { name: 'Instagram', url: 'instagram.com', blockMethod: 'none', lastMethod: 'logOut', isCustom: false },
+    { name: 'YouTube', url: 'youtube.com', blockMethod: 'none', lastMethod: 'hideFeed', isCustom: false },
+    { name: 'TikTok', url: 'tiktok.com', blockMethod: 'none', lastMethod: 'hideFeed', isCustom: false },
+    { name: 'Reddit', url: 'reddit.com', blockMethod: 'none', lastMethod: 'hideFeed', isCustom: false },
+    { name: 'X (Twitter)', url: 'x.com', blockMethod: 'none', lastMethod: 'hideFeed', isCustom: false },
+    { name: 'LinkedIn', url: 'linkedin.com', blockMethod: 'none', lastMethod: 'logOut', isCustom: false },
   ];
 
   // Default settings object
@@ -209,6 +209,16 @@
         if (settings.settings.onDuty.AlwaysOn == null) settings.settings.onDuty.AlwaysOn = true;
         if (!settings.settings.onDuty.mindfulTimerDelay) settings.settings.onDuty.mindfulTimerDelay = DEFAULT_SETTINGS.settings.onDuty.mindfulTimerDelay;
         if (!settings.settings.onDuty.grayscaleOpacity) settings.settings.onDuty.grayscaleOpacity = DEFAULT_SETTINGS.settings.onDuty.grayscaleOpacity;
+        if (Array.isArray(settings.settings.sites)) {
+          settings.settings.sites = settings.settings.sites.map((site) => {
+            if (!site) return site;
+            const copy = { ...site };
+            if (!copy.lastMethod) {
+              copy.lastMethod = copy.blockMethod && copy.blockMethod !== 'none' ? copy.blockMethod : 'logOut';
+            }
+            return copy;
+          });
+        }
         if (!settings.settings.user) settings.settings.user = { name: '', email: '' };
         if (!settings.settings.actions) settings.settings.actions = [];
         if (!settings.settings.ui) settings.settings.ui = deepClone(DEFAULT_SETTINGS.settings.ui);
@@ -345,6 +355,7 @@
         name: (name || host).trim(),
         url: host,
         blockMethod: method,
+        lastMethod: method === 'none' ? 'logOut' : method,
         isCustom: true,
       };
       state.settings.settings.sites.push(site);
@@ -364,7 +375,11 @@
       const method = BLOCK_METHODS.has(blockMethod) ? blockMethod : 'none';
       const idx = findSiteIndex(host);
       if (idx === -1) return false;
-      state.settings.settings.sites[idx].blockMethod = method;
+      const site = state.settings.settings.sites[idx];
+      if (method !== 'none') {
+        site.lastMethod = method;
+      }
+      site.blockMethod = method;
       const ok = await saveSettings();
       return !!ok;
     },
