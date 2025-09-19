@@ -11,21 +11,8 @@
     "scripting"
   ],
   
-  "optional_host_permissions": [
-   "*://x.com/*",
-    "*://facebook.com/*",
-    "*://www.facebook.com/*",
-    "*://instagram.com/*",
-    "*://www.instagram.com/*",
-    "*://linkedin.com/*",
-    "*://www.linkedin.com/*",
-    "*://tiktok.com/*",
-    "*://www.tiktok.com/*",
-    "*://reddit.com/*",
-    "*://www.reddit.com/*",
-    "*://youtube.com/*",
-    "*://www.youtube.com/*",
-    "*://*/*"
+  "host_permissions": [
+    "<all_urls>"
   ],
   
   "background": {
