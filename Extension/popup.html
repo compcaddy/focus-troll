@@ -4,11 +4,13 @@
 <head>
   <meta charset="utf-8">
   <link href="./tailwind.css" rel="stylesheet">
+  <link href="./assets/css/fontawesome.css" rel="stylesheet">
+  <link href="./assets/css/all.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-bg1 text-n1 antialiased font-brand">
+<body class="bg-bg1 text-n1 antialiased font-brand" style='font-family: Arial, sans-serif, "Font Awesome 7 Pro"'>
 
-  <div class="hidden min-[1200px]:block">
+  <div class="">
     <div class="mx-auto max-w-[1200px] px-10 py-6">
       <!-- Top header -->
       <header class="flex items-center justify-between mb-6">
@@ -33,7 +35,8 @@
 
             <div class="flex gap-3 items-center">
               <div class="w-18 h-18">
-                <img src="/images/troll.png" alt="" />
+                <img src="/assets/images/troll.png" alt="" />
+                <i class="fa fa-user"></i>sdf
               </div>
               <div>
                 <div class="flex items-baseline gap-2">
@@ -44,12 +47,14 @@
                 </div>
                 <p class="text-n2 leading-snug font-medium text-base mt-1">
                   <b>Your personal Focus Troll.</b><br />
-                  He'll keep you on task, whether you like it or not.
+                  He' ll keep you on task, whether you like it or not.
                 </p>
               </div>
             </div>
 
-            <h2 class="font-extrabold text-lg mb-5">How Focus Troll Works</h2>
+            <h2 class="font-extrabold text-base mb-5 mt-4">
+              Ünskrôll's Actions
+            </h2>
 
             <div class="grid grid-cols-2 gap-6">
               <div class="space-y-3">
@@ -58,10 +63,9 @@
                   <i class="ph ph-eye text-2xl"></i>
                 </div>
                 <div>
-                  <p class="font-semibold">Watches for Closed Tabs</p>
+                  <p class="font-semibold">Auto Logout</p>
                   <p class="text-n2 text-sm">
-                    Monitors when you close social media tabs to detect
-                    distraction patterns.
+                    He'll log you out of a website after you close the Tab, forcing effort and intention to use it again.
                   </p>
                 </div>
               </div>
@@ -72,10 +76,9 @@
                   <i class="ph ph-timer text-2xl"></i>
                 </div>
                 <div>
-                  <p class="font-semibold">Waits 10 Seconds</p>
+                  <p class="font-semibold">Hide Feed</p>
                   <p class="text-n2 text-sm">
-                    Gives you a brief moment in case you need quick access
-                    again.
+                    He'll hide the website's main addictive Feed but allow access to other areas of the site.
                   </p>
                 </div>
               </div>
@@ -86,10 +89,9 @@
                   <i class="ph ph-sign-out text-2xl"></i>
                 </div>
                 <div>
-                  <p class="font-semibold">Auto-logs You Out</p>
+                  <p class="font-semibold">Mindful Timer</p>
                   <p class="text-n2 text-sm">
-                    Forces intentional login for your next visit, breaking the
-                    habit loop.
+                    He'll make you wait a period of time before using the website each time you access it.
                   </p>
                 </div>
               </div>
@@ -100,9 +102,9 @@
                   <i class="ph ph-placeholder text-2xl"></i>
                 </div>
                 <div>
-                  <p class="font-semibold">Or Hides Feed, No Log Out</p>
+                  <p class="font-semibold">Grayscale</p>
                   <p class="text-n2 text-sm">
-                    Keeps you logged in but hides distracting content feeds.
+                    He will take all the color and fun from the website, helping reduce dopamine hits.
                   </p>
                 </div>
               </div>
@@ -372,7 +374,7 @@
       <!-- Footer -->
       <footer class="mt-14 pb-4 text-center text-sm text-n2">
         <div class="flex items-center justify-center gap-2 mb-3">
-          <img src="/images/focus-troll-logo-full-green-text.svg" alt="" />
+          <img src="/assets/images/focus-troll-logo-full-green-text.svg" alt="" />
         </div>
         <a
           href="mailto:contact@trollfocus.com"
