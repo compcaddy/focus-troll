@@ -13,18 +13,11 @@
   <div class="">
     <div class="mx-auto max-w-[1200px] px-10 py-6">
       <!-- Top header -->
-      <header class="flex items-center justify-between mb-6">
+      <!-- <header class="flex items-center justify-between mb-6">
 
 
-        <div class="flex items-center gap-3 text-lg ml-auto mr-5">
-          <span id="onDutyLabel" class="font-semibold">Ün-skrôll is on Duty</span>
-          <!-- Toggle (wired in popup2.js) -->
-          <label id="onDutySwitch" class="relative inline-flex items-center cursor-pointer select-none">
-            <input id="onDutyToggle" type="checkbox" class="sr-only peer" />
-            <span class="w-14 h-8 rounded-full bg-neutral-300 peer-checked:bg-p1 transition-colors relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-7 after:h-7 after:bg-white after:rounded-full after:shadow after:transition-all peer-checked:after:translate-x-6"></span>
-          </label>
-        </div>
-      </header>
+
+      </header> -->
 
       <!-- main layout -->
       <main class="grid grid-cols-2 gap-6">
@@ -325,11 +318,21 @@
 
         <!-- Right column -->
         <div class="bg-white rounded-2xl shadow-card pt-6 px-6 pb-1 relative">
-          <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center justify-between mb-1 border-b border-b-solid border-gray-200 pb-4 ps-1">
+
             <h2 class="font-extrabold text-lg">
               <!-- <i class="fa-regular fa-eyes scale-x-[-1]"></i> -->
-              Ün-skrôll’s Watchlist
+              Watchlist
             </h2>
+            <div class="flex-1"></div>
+            <div class="flex items-center gap-3 text-base ml-auto">
+              <span id="onDutyLabel" class="font-semibold">Ün-skrôll is on Duty</span>
+              <!-- Toggle (wired in popup2.js) -->
+              <label id="onDutySwitch" class="relative inline-flex items-center cursor-pointer select-none">
+                <input id="onDutyToggle" type="checkbox" class="sr-only peer" />
+                <span class="w-12 h-7 rounded-full bg-neutral-300 peer-checked:bg-p1 transition-colors relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-6 after:h-6 after:bg-white after:rounded-full after:shadow after:transition-all peer-checked:after:translate-x-5"></span>
+              </label>
+            </div>
             <!-- <span class="text-base font-semibold text-n1 pr-3">Action</span> -->
           </div>
           <!-- Watchlist item template (used by popup2.js) -->
@@ -372,7 +375,10 @@
                     <!-- Remove for custom sites -->
                     <li class="js-remove-separator my-1 h-px bg-neutral-200"></li>
                     <li class="js-choose-remove px-4 py-3 hover:bg-neutral-50 cursor-pointer">
-                      <div class="text-sm font-semibold text-red-600">Remove site from Watchlist</div>
+                      <div class="text-sm font-semibold text-red-600">
+                        <i class="fa-regular fa-trash"></i>
+                        Remove from Watchlist
+                      </div>
                     </li>
                   </ul>
                 </details>
@@ -386,9 +392,9 @@
 
           <ul id="watchList" class="divide-y divide-neutral-100 divide"></ul>
           <!-- Off Duty overlay (shown when onDuty is false) -->
-          <div id="watchOverlay" class="hidden absolute inset-0 rounded-2xl bg-white/70 backdrop-blur-[1px] flex items-center justify-center">
-            <div class="text-center">
-              <p class="text-p1 text-base font-semibold">Off Duty -- settings not active</p>
+          <div id="watchOverlay" class="hidden absolute top-16 inset-0 bg-[#e6ebda]/70 backdrop-blur-[2px] flex justify-center">
+            <div class="text-center mt-16">
+              <p class="text-p2 text-xl font-semibold">Off Duty, settings not active.</p>
             </div>
           </div>
 
