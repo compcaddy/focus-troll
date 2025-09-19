@@ -17,6 +17,20 @@ const DEFAULT_SITE_PERMISSIONS = {
 const LOGOUT_DELAY = 10000; // 10 seconds
 const logoutTimers = new Map();
 const grayscaleTabs = new Map();
+const mindfulTabs = new Map();
+
+const MINDFUL_PROMPTS = [
+  'Take a breath. Is this visit aligned with what you planned to do right now?',
+  'Would future-you thank you for the way you spend the next few minutes?',
+  'Is there a smaller task you meant to finish before opening this tab?',
+  'If you close this tab, what will you focus on instead?',
+  'Use this pause to reset - what outcome are you hoping for from this visit?',
+  'Is this tab helping you move toward today\'s top priority?',
+  'Could a short stretch or glass of water serve you better than this scroll?',
+  'Are you opening this out of habit or with a clear intention?',
+  'Imagine it\'s the end of the day - will this detour feel worth it?',
+  'What progress will you be proud of after this timer ends?'
+];
 
 let settingsCache = null;
 let settingsPromise = null;
@@ -39,6 +53,38 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 console.log('Focus Troll: Background script loaded');
+
+chrome.runtime.onMessage.addListener((message, sender) => {
+  if (!message || typeof message !== 'object') return;
+
+  if (message.type === 'FT_MINDFUL_CLOSE_TAB') {
+    const tabId = sender?.tab?.id;
+    if (tabId != null) {
+      chrome.tabs.remove(tabId).catch((error) => {
+        console.warn(`Focus Troll: Failed to close tab ${tabId} from mindful prompt`, error);
+      });
+      mindfulTabs.delete(tabId);
+    }
+    return;
+  }
+
+  if (message.type === 'FT_OPEN_SETTINGS') {
+    chrome.tabs.create({ url: chrome.runtime.getURL('popup.html') }).catch((error) => {
+      console.warn('Focus Troll: Failed to open settings tab from mindful overlay', error);
+    });
+    return;
+  }
+
+  if (message.type === 'FT_MINDFUL_OVERLAY_DONE') {
+    const tabId = sender?.tab?.id;
+    if (tabId != null) {
+      const state = mindfulTabs.get(tabId);
+      if (!state || !message.instanceId || state.instanceId === message.instanceId) {
+        mindfulTabs.delete(tabId);
+      }
+    }
+  }
+});
 
 // Store tab info before tabs are closed
 const tabInfo = new Map();
@@ -84,6 +130,7 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
   console.log(`Focus Troll: Tab ${tabId} removed, isWindowClosing: ${removeInfo.isWindowClosing}`);
 
   grayscaleTabs.delete(tabId);
+  mindfulTabs.delete(tabId);
 
   if (removeInfo.isWindowClosing) return;
 
@@ -418,6 +465,7 @@ async function handleTabCompleted(tabId, tab) {
 async function applyActionsForTab(tabId, tab) {
   if (!tab || !tab.url || tab.incognito || !isWebUrl(tab.url)) {
     await clearGrayscale(tabId);
+    await clearMindfulTimer(tabId);
     return;
   }
 
@@ -444,8 +492,15 @@ async function applyActionsForTab(tabId, tab) {
       onDutyActive,
     });
 
-    if (!onDutyActive || !site) {
+    if (!onDutyActive || !site || site.blockMethod === 'none') {
       await clearGrayscale(tabId);
+      await clearMindfulTimer(tabId);
+      return;
+    }
+
+    if (site.blockMethod === 'mindfulTimer') {
+      await clearGrayscale(tabId);
+      await startMindfulTimer(tabId, tab, site, onDuty);
       return;
     }
 
@@ -456,12 +511,15 @@ async function applyActionsForTab(tabId, tab) {
       if (!hasPermission) {
         console.warn(`Focus Troll: Missing permissions for ${normalizedHost}, skipping grayscale`);
         await clearGrayscale(tabId);
+        await clearMindfulTimer(tabId);
         return;
       }
       await applyGrayscale(tabId, opacity);
+      await clearMindfulTimer(tabId);
     } else {
       console.log(`Focus Troll: ${normalizedHost} block method ${site.blockMethod} does not require grayscale`);
       await clearGrayscale(tabId);
+      await clearMindfulTimer(tabId);
     }
   } catch (error) {
     console.error('Focus Troll: Failed to apply actions to tab', error);
@@ -605,6 +663,428 @@ async function clearGrayscale(tabId) {
     console.warn(`Focus Troll: Failed to clear grayscale from tab ${tabId}`, error);
   } finally {
     grayscaleTabs.delete(tabId);
+  }
+}
+
+async function startMindfulTimer(tabId, tab, site, onDuty) {
+  const url = tab?.url;
+  if (!url) {
+    await clearMindfulTimer(tabId);
+    return;
+  }
+
+  const normalizedHost = extractNormalizedHost(url);
+  if (!normalizedHost) {
+    await clearMindfulTimer(tabId);
+    return;
+  }
+
+  const delayMs = parseMindfulDelay(onDuty?.mindfulTimerDelay);
+  if (delayMs <= 0) {
+    console.log(`Focus Troll: Mindful timer delay invalid for tab ${tabId}, skipping`);
+    await clearMindfulTimer(tabId);
+    return;
+  }
+
+  const existing = mindfulTabs.get(tabId);
+  if (existing && existing.url && existing.url !== url) {
+    await clearMindfulTimer(tabId);
+  } else if (existing && existing.url === url && existing.active) {
+    console.log(`Focus Troll: Mindful timer already active for tab ${tabId}`);
+    return;
+  }
+
+  const hasPermission = await ensureSitePermissions(normalizedHost, !!site.isCustom);
+  if (!hasPermission) {
+    console.warn(`Focus Troll: Missing permissions for ${normalizedHost}, skipping mindful timer`);
+    await clearMindfulTimer(tabId);
+    return;
+  }
+
+  const instanceId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  mindfulTabs.set(tabId, {
+    instanceId,
+    url,
+    host: normalizedHost,
+    startedAt: Date.now(),
+    active: true,
+  });
+
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      func: mindfulTimerOverlayScript,
+      args: [{
+        instanceId,
+        durationMs: delayMs,
+        prompts: MINDFUL_PROMPTS,
+        overlayColor: 'rgba(141, 186, 56, 0.8)',
+        textColor: '#102617',
+        timerColor: '#102617',
+        buttonLabel: 'Nevermind, Close Tab',
+      }],
+      injectImmediately: true,
+    });
+    console.log(`Focus Troll: Mindful timer overlay started for tab ${tabId} (${normalizedHost})`);
+  } catch (error) {
+    mindfulTabs.delete(tabId);
+    console.error(`Focus Troll: Failed to apply mindful timer overlay to tab ${tabId}`, error);
+  }
+}
+
+async function clearMindfulTimer(tabId) {
+  if (!mindfulTabs.has(tabId)) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        func: mindfulTimerOverlayCleanup,
+        injectImmediately: true,
+      });
+    } catch (error) {
+      // Ignore cleanup errors when overlay is not present or tab is gone.
+    }
+    return;
+  }
+
+  mindfulTabs.delete(tabId);
+
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      func: mindfulTimerOverlayCleanup,
+      injectImmediately: true,
+    });
+    console.log(`Focus Troll: Mindful timer overlay cleared from tab ${tabId}`);
+  } catch (error) {
+    console.warn(`Focus Troll: Failed to clear mindful timer overlay from tab ${tabId}`, error);
+  }
+}
+
+function parseMindfulDelay(value) {
+  const mapping = {
+    '3s': 3000,
+    '15s': 15000,
+    '30s': 30000,
+  };
+  const normalized = String(value || '').trim();
+  return mapping[normalized] ?? mapping['15s'];
+}
+
+function mindfulTimerOverlayScript(options) {
+  try {
+    const opts = options || {};
+    const durationMsRaw = Number(opts.durationMs);
+    const durationMs = Number.isFinite(durationMsRaw) ? Math.max(0, durationMsRaw) : 0;
+    const prompts = Array.isArray(opts.prompts) && opts.prompts.length > 0
+      ? opts.prompts
+      : [
+          'Take a breath. Is this visit aligned with what you planned to do right now?',
+          'Would future-you thank you for the way you spend the next few minutes?',
+          'Is there a smaller task you meant to finish before opening this tab?',
+          'If you close this tab, what will you focus on instead?',
+          'Use this pause to reset - what outcome are you hoping for from this visit?',
+          'Is this tab helping you move toward today\'s top priority?',
+          'Could a short stretch or glass of water serve you better than this scroll?',
+          'Are you opening this out of habit or with a clear intention?',
+          'Imagine it\'s the end of the day - will this detour feel worth it?',
+          'What progress will you be proud of after this timer ends?'
+        ];
+
+    const run = () => {
+      const doc = document;
+      const body = doc.body;
+      if (!body) return;
+
+      const stateKey = '__focusTrollMindfulOverlayState';
+      const previousState = window[stateKey];
+      if (previousState && typeof previousState.finish === 'function') {
+        previousState.finish('replaced');
+      }
+
+      const overlayId = 'focus-troll-mindful-overlay';
+      const existingOverlay = doc.getElementById(overlayId);
+      if (existingOverlay) existingOverlay.remove();
+
+      const overlay = doc.createElement('div');
+      overlay.id = overlayId;
+      overlay.dataset.instanceId = opts.instanceId || '';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', 'Mindful pause');
+      overlay.style.position = 'fixed';
+      overlay.style.inset = '0';
+      overlay.style.zIndex = '2147483647';
+      overlay.style.display = 'flex';
+      overlay.style.flexDirection = 'column';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.background = opts.overlayColor || 'rgba(141, 186, 56, 0.8)';
+      overlay.style.color = opts.textColor || '#102617';
+      overlay.style.fontFamily = opts.fontFamily || 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      overlay.style.padding = '24px';
+      overlay.style.textAlign = 'center';
+      overlay.style.gap = '16px';
+      overlay.style.opacity = '0';
+      overlay.style.transition = 'opacity 200ms ease';
+      overlay.tabIndex = -1;
+
+      const settingsButton = doc.createElement('button');
+      settingsButton.type = 'button';
+      settingsButton.setAttribute('aria-label', 'Open Focus Troll settings');
+      settingsButton.title = 'Open Focus Troll settings';
+      settingsButton.style.position = 'absolute';
+      settingsButton.style.top = '24px';
+      settingsButton.style.right = '24px';
+      settingsButton.style.width = '48px';
+      settingsButton.style.height = '48px';
+      settingsButton.style.display = 'flex';
+      settingsButton.style.alignItems = 'center';
+      settingsButton.style.justifyContent = 'center';
+      settingsButton.style.border = 'none';
+      settingsButton.style.borderRadius = '50%';
+      settingsButton.style.background = 'rgba(255, 255, 255, 0.9)';
+      settingsButton.style.cursor = 'pointer';
+      settingsButton.style.boxShadow = '0 12px 28px rgba(16, 38, 23, 0.25)';
+      settingsButton.style.color = opts.textColor || '#102617';
+      settingsButton.style.fontSize = '22px';
+      settingsButton.style.padding = '0';
+
+      const settingsIcon = doc.createElement('i');
+      settingsIcon.className = 'fa-regular fa-cog';
+      settingsIcon.setAttribute('aria-hidden', 'true');
+      settingsButton.appendChild(settingsIcon);
+
+      const srText = doc.createElement('span');
+      srText.textContent = 'Open Focus Troll settings';
+      srText.style.position = 'absolute';
+      srText.style.clip = 'rect(0 0 0 0)';
+      srText.style.clipPath = 'inset(50%)';
+      srText.style.width = '1px';
+      srText.style.height = '1px';
+      srText.style.margin = '-1px';
+      srText.style.border = '0';
+      srText.style.padding = '0';
+      settingsButton.appendChild(srText);
+
+      settingsButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+            chrome.runtime.sendMessage({ type: 'FT_OPEN_SETTINGS' });
+          }
+        } catch (_) {
+          /* noop */
+        }
+      });
+
+      const container = doc.createElement('div');
+      container.style.display = 'flex';
+      container.style.alignItems = 'center';
+      container.style.justifyContent = 'center';
+      container.style.width = '100%';
+      container.style.padding = '0 16px';
+
+      const card = doc.createElement('div');
+      card.style.display = 'flex';
+      card.style.flexDirection = 'column';
+      card.style.alignItems = 'center';
+      card.style.gap = '24px';
+      card.style.maxWidth = '640px';
+      card.style.width = 'min(90vw, 640px)';
+      card.style.padding = '40px 48px';
+      card.style.background = 'rgba(255, 255, 255, 0.9)';
+      card.style.borderRadius = '32px';
+      card.style.boxShadow = '0 25px 45px rgba(16, 38, 23, 0.25)';
+      card.style.textAlign = 'center';
+      card.style.backdropFilter = 'blur(2px)';
+      card.style.color = opts.textColor || '#102617';
+
+      const timerEl = doc.createElement('div');
+      timerEl.setAttribute('role', 'timer');
+      timerEl.setAttribute('aria-live', 'assertive');
+      timerEl.style.fontSize = '72px';
+      timerEl.style.fontWeight = '800';
+      timerEl.style.letterSpacing = '4px';
+      timerEl.style.color = opts.timerColor || opts.textColor || '#102617';
+
+      const promptEl = doc.createElement('p');
+      promptEl.style.fontSize = '22px';
+      promptEl.style.fontWeight = '500';
+      promptEl.style.lineHeight = '1.45';
+      promptEl.style.margin = '0';
+      promptEl.textContent = prompts[Math.floor(Math.random() * prompts.length)] || prompts[0];
+
+      const button = doc.createElement('button');
+      button.type = 'button';
+      button.textContent = opts.buttonLabel || 'Nevermind, Close Tab';
+      button.style.marginTop = '12px';
+      button.style.padding = '16px 32px';
+      button.style.fontSize = '20px';
+      button.style.fontWeight = '700';
+      button.style.border = 'none';
+      button.style.borderRadius = '999px';
+      button.style.cursor = 'pointer';
+      button.style.background = '#ffffff';
+      button.style.color = opts.textColor || '#102617';
+      button.style.boxShadow = '0 15px 35px rgba(16, 38, 23, 0.25)';
+
+      const state = {
+        instanceId: opts.instanceId || '',
+        overlay,
+        done: false,
+        intervalId: null,
+        timeoutId: null,
+        restore: null,
+        finish: null,
+      };
+
+      const html = doc.documentElement;
+      const prevHtmlOverflow = html ? html.style.overflow : '';
+      const prevBodyOverflow = body.style.overflow;
+      if (html) html.style.overflow = 'hidden';
+      body.style.overflow = 'hidden';
+      state.restore = () => {
+        if (html) html.style.overflow = prevHtmlOverflow;
+        body.style.overflow = prevBodyOverflow;
+      };
+
+      const formatMs = (ms) => {
+        const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      };
+
+      const finish = (reason) => {
+        if (state.done) return;
+        state.done = true;
+        if (state.intervalId != null) window.clearInterval(state.intervalId);
+        if (state.timeoutId != null) window.clearTimeout(state.timeoutId);
+        if (typeof state.restore === 'function') {
+          try { state.restore(); } catch (_) { /* noop */ }
+        }
+        overlay.style.opacity = '0';
+
+        const finalize = () => {
+          try {
+            overlay.remove();
+          } catch (_) {
+            /* noop */
+          }
+          try {
+            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+              chrome.runtime.sendMessage({
+                type: 'FT_MINDFUL_OVERLAY_DONE',
+                instanceId: state.instanceId,
+                reason,
+              });
+            }
+          } catch (_) {
+            /* noop */
+          }
+          if (window[stateKey] === state) {
+            delete window[stateKey];
+          }
+        };
+
+        overlay.addEventListener('transitionend', (event) => {
+          if (event.propertyName === 'opacity') {
+            finalize();
+          }
+        }, { once: true });
+
+        window.setTimeout(finalize, 400);
+      };
+
+      state.finish = finish;
+      window[stateKey] = state;
+
+      button.addEventListener('click', () => {
+        try {
+          if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+            chrome.runtime.sendMessage({ type: 'FT_MINDFUL_CLOSE_TAB' });
+          }
+        } catch (_) {
+          /* noop */
+        }
+        finish('close-tab');
+      });
+
+      card.appendChild(timerEl);
+      card.appendChild(promptEl);
+      card.appendChild(button);
+      container.appendChild(card);
+      overlay.appendChild(settingsButton);
+      overlay.appendChild(container);
+      body.appendChild(overlay);
+
+      const endAt = Date.now() + durationMs;
+
+      const updateTimer = () => {
+        const remaining = endAt - Date.now();
+        timerEl.textContent = formatMs(remaining);
+      };
+
+      updateTimer();
+
+      if (durationMs === 0) {
+        finish('complete');
+      } else {
+        state.intervalId = window.setInterval(() => {
+          const remaining = endAt - Date.now();
+          if (remaining <= 0) {
+            timerEl.textContent = formatMs(0);
+            finish('complete');
+          } else {
+            timerEl.textContent = formatMs(remaining);
+          }
+        }, 200);
+
+        state.timeoutId = window.setTimeout(() => {
+          timerEl.textContent = formatMs(0);
+          finish('complete');
+        }, durationMs);
+      }
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          overlay.style.opacity = '1';
+          try {
+            overlay.focus({ preventScroll: true });
+          } catch (_) {
+            /* noop */
+          }
+        });
+      });
+    };
+
+    if (document.body) run();
+    else document.addEventListener('DOMContentLoaded', run, { once: true });
+  } catch (error) {
+    console.error('Focus Troll: Failed to render mindful timer overlay', error);
+  }
+}
+
+function mindfulTimerOverlayCleanup() {
+  try {
+    const stateKey = '__focusTrollMindfulOverlayState';
+    const state = window[stateKey];
+    if (state && typeof state.finish === 'function') {
+      state.finish('external-clear');
+      return;
+    }
+    const overlay = document.getElementById('focus-troll-mindful-overlay');
+    if (overlay) {
+      try {
+        overlay.remove();
+      } catch (_) {
+        /* noop */
+      }
+    }
+    if (window[stateKey]) delete window[stateKey];
+  } catch (_) {
+    // ignore cleanup failures
   }
 }
 
