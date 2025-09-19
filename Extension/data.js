@@ -23,9 +23,11 @@
   const MAX_ACTION_AGE_DAYS = 30; // or those within last 30 days
 
   // Allowed enums
-  const BLOCK_METHODS = new Set(['none', 'logOut', 'hideFeed', 'blockSite']);
+  const BLOCK_METHODS = new Set(['none', 'logOut', 'hideFeed', 'mindfulTimer', 'grayscale']);
   const AUTO_LOGOUT_DELAYS = new Set(['0s', '15s', '5m', '1h', '24h']);
-  const FEED_BYPASS_METHODS = new Set(['button', 'typing']);
+  const FEED_BYPASS_METHODS = new Set(['none', 'button', 'typing']);
+  const MINDFUL_TIMER_DELAYS = new Set(['3s', '15s', '30s']);
+  const GRAYSCALE_OPACITY_VALUES = new Set(['100', '75', '50', '25']);
 
   // Default sites (built-in, not custom)
   const DEFAULT_SITES = [
@@ -55,10 +57,11 @@
           friday: true,
           saturday: true,
           sunday: true,
-        },
-        autoCloseDelay: 3,
+        },        
         autoLogoutDelay: '15s',
         feedBypassMethod: 'button',
+        mindfulTimerDelay: '15s',
+        grayscaleOpacity: '100',
       },
       ui: {
         panels: {
@@ -204,6 +207,8 @@
         if (!Array.isArray(settings.settings.sites)) settings.settings.sites = DEFAULT_SITES.slice();
         if (!settings.settings.onDuty) settings.settings.onDuty = deepClone(DEFAULT_SETTINGS.settings.onDuty);
         if (settings.settings.onDuty.AlwaysOn == null) settings.settings.onDuty.AlwaysOn = true;
+        if (!settings.settings.onDuty.mindfulTimerDelay) settings.settings.onDuty.mindfulTimerDelay = DEFAULT_SETTINGS.settings.onDuty.mindfulTimerDelay;
+        if (!settings.settings.onDuty.grayscaleOpacity) settings.settings.onDuty.grayscaleOpacity = DEFAULT_SETTINGS.settings.onDuty.grayscaleOpacity;
         if (!settings.settings.user) settings.settings.user = { name: '', email: '' };
         if (!settings.settings.actions) settings.settings.actions = [];
         if (!settings.settings.ui) settings.settings.ui = deepClone(DEFAULT_SETTINGS.settings.ui);
@@ -430,16 +435,6 @@
       return !!ok;
     },
 
-    /** Update auto-close delay in seconds. */
-    async UpdateAutoCloseDelay(seconds) {
-      await ensureInitialized();
-      const s = sanitizeSeconds(seconds);
-      if (s == null) return false;
-      state.settings.settings.onDuty.autoCloseDelay = s;
-      const ok = await saveSettings();
-      return !!ok;
-    },
-
     /** Update auto-logout delay (enum string). */
     async UpdateAutoLogoutDelay(delay) {
       await ensureInitialized();
@@ -456,6 +451,28 @@
       const m = (method || '').toString();
       const val = FEED_BYPASS_METHODS.has(m) ? m : 'button';
       state.settings.settings.onDuty.feedBypassMethod = val;
+      const ok = await saveSettings();
+      return !!ok;
+    },
+
+    /** Update mindful timer delay (enum string). */
+    async UpdateMindfulTimerDelay(delay) {
+      await ensureInitialized();
+      const d = (delay || '').toString();
+      const fallback = DEFAULT_SETTINGS.settings.onDuty.mindfulTimerDelay;
+      const val = MINDFUL_TIMER_DELAYS.has(d) ? d : fallback;
+      state.settings.settings.onDuty.mindfulTimerDelay = val;
+      const ok = await saveSettings();
+      return !!ok;
+    },
+
+    /** Update grayscale opacity percentage. */
+    async UpdateGrayscaleOpacity(opacity) {
+      await ensureInitialized();
+      const raw = (opacity || '').toString().replace('%', '');
+      const fallback = DEFAULT_SETTINGS.settings.onDuty.grayscaleOpacity;
+      const val = GRAYSCALE_OPACITY_VALUES.has(raw) ? raw : fallback;
+      state.settings.settings.onDuty.grayscaleOpacity = val;
       const ok = await saveSettings();
       return !!ok;
     },

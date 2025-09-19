@@ -158,7 +158,8 @@
       const chooseLogout = li.querySelector('.js-choose-logout');
       const chooseHide = li.querySelector('.js-choose-hidefeed');
       const hideFeedDesc = li.querySelector('.js-hidefeed-desc');
-      const chooseBlock = li.querySelector('.js-choose-blocksite');
+      const chooseMindful = li.querySelector('.js-choose-mindful');
+      const chooseGrayscale = li.querySelector('.js-choose-grayscale');
       const chooseRemove = li.querySelector('.js-choose-remove');
       const removeSep = li.querySelector('.js-remove-separator');
       if (chooseLogout) {
@@ -182,9 +183,15 @@
           });
         }
       }
-      if (chooseBlock) {
-        chooseBlock.addEventListener('click', async () => {
-          await FTData.UpdateSiteBlockMethod(host, 'blockSite');
+      if (chooseMindful) {
+        chooseMindful.addEventListener('click', async () => {
+          await FTData.UpdateSiteBlockMethod(host, 'mindfulTimer');
+          renderWatchList();
+        });
+      }
+      if (chooseGrayscale) {
+        chooseGrayscale.addEventListener('click', async () => {
+          await FTData.UpdateSiteBlockMethod(host, 'grayscale');
           renderWatchList();
         });
       }
@@ -252,7 +259,7 @@
       const label = document.getElementById('onDutyLabel');
       const overlay = document.getElementById('watchOverlay');
       if (toggle) toggle.checked = enabled;
-      if (label) label.textContent = enabled ? 'Ünskrôll is on Duty' : 'Ünskrôll is off Duty';
+      if (label) label.textContent = enabled ? 'Ün-skrôll is on Duty' : 'Ün-skrôll is off Duty';
       if (overlay) overlay.classList.toggle('hidden', enabled);
     } catch (e) {
       console.error('Failed to update On Duty UI', e);
@@ -263,7 +270,7 @@
   function setupSettingsPanel() {
     // Populate hours/minutes selects
     const hours = Array.from({ length: 12 }, (_, i) => i + 1);
-    const minutes = Array.from({ length: 60 }, (_, i) => i);
+    const minutes = [0, 15, 30, 45];
     fillOptions(document.getElementById('startHour'), hours);
     fillOptions(document.getElementById('endHour'), hours);
     fillOptions(document.getElementById('startMinute'), minutes, true);
@@ -274,7 +281,9 @@
     bindAlwaysOn();
     bindTimes();
     bindDays();
-    bindAutoCloseDelay();
+    bindMindfulTimerDelay();
+    bindGrayscaleOpacity();
+    
     // Initial render from settings
     updateSettingsUIFromData();
   }
@@ -302,7 +311,19 @@
 
       // Feed Bypass label
       const fbmSummary = document.querySelector('.js-fbm-summary .js-fbm-label');
-      if (fbmSummary) fbmSummary.textContent = od.feedBypassMethod === 'typing' ? 'Typing' : 'Button';
+      if (fbmSummary) {
+        if (od.feedBypassMethod === 'typing') fbmSummary.textContent = 'Typing';
+        else if (od.feedBypassMethod === 'none') fbmSummary.textContent = 'None';
+        else fbmSummary.textContent = 'Button';
+      }
+
+      // Mindful Timer delay label
+      const mtdSummary = document.querySelector('.js-mtd-summary .js-mtd-label');
+      if (mtdSummary) mtdSummary.textContent = mapMindfulToLabel(od.mindfulTimerDelay);
+
+      // Grayscale strength label
+      const gsoSummary = document.querySelector('.js-gso-summary .js-gso-label');
+      if (gsoSummary) gsoSummary.textContent = mapOpacityToLabel(od.grayscaleOpacity);
 
       // AlwaysOn toggle and schedule visibility
       const alwaysOn = od.AlwaysOn == null ? true : !!od.AlwaysOn;
@@ -324,9 +345,6 @@
         btn.classList.toggle('text-p1', on);
       });
 
-      // Auto-close delay
-      const ac = document.getElementById('autoCloseDelay');
-      if (ac) ac.value = String(od.autoCloseDelay ?? 3);
     } catch (e) {
       console.error('Failed to update settings UI', e);
     }
@@ -340,6 +358,26 @@
       case '1h': return '1 hour';
       case '24h': return '24 hours';
       default: return '15 seconds';
+    }
+  }
+
+  function mapMindfulToLabel(val) {
+    switch (val) {
+      case '3s': return '3 seconds';
+      case '15s': return '15 seconds';
+      case '30s': return '30 seconds';
+      default: return '15 seconds';
+    }
+  }
+
+  function mapOpacityToLabel(val) {
+    const normalized = String(val || '100').replace('%', '');
+    switch (normalized) {
+      case '25': return '25%';
+      case '50': return '50%';
+      case '75': return '75%';
+      case '100':
+      default: return '100%';
     }
   }
 
@@ -361,6 +399,7 @@
           await FTData.UpdateAutoLogoutDelay(value);
           window.Toast?.show('Saved', { type: 'success' });
           updateSettingsUIFromData();
+          container.open = false;
         }
       });
     });
@@ -369,17 +408,65 @@
   function bindFeedBypassMethod() {
     const container = document.querySelector('.js-fbm');
     if (!container) return;
-    const button = container.querySelector('.js-fbm-button');
-    const typing = container.querySelector('.js-fbm-typing');
-    if (button) button.addEventListener('click', async () => {
-      await FTData.UpdateFeedBypassMethod('button');
-      window.Toast?.show('Saved', { type: 'success' });
-      updateSettingsUIFromData();
+    const optionNone = container.querySelector('.js-fbm-none');
+    const optionButton = container.querySelector('.js-fbm-button');
+    const optionTyping = container.querySelector('.js-fbm-typing');
+    const bind = (el, value) => {
+      if (!el) return;
+      el.addEventListener('click', async () => {
+        await FTData.UpdateFeedBypassMethod(value);
+        window.Toast?.show('Saved', { type: 'success' });
+        updateSettingsUIFromData();
+        container.open = false;
+      });
+    };
+    bind(optionNone, 'none');
+    bind(optionButton, 'button');
+    bind(optionTyping, 'typing');
+  }
+
+  function bindMindfulTimerDelay() {
+    const container = document.querySelector('.js-mtd');
+    if (!container) return;
+    const mapping = {
+      'js-mtd-3s': '3s',
+      'js-mtd-15s': '15s',
+      'js-mtd-30s': '30s',
+    };
+    container.querySelectorAll('li').forEach((li) => {
+      li.addEventListener('click', async () => {
+        const cls = Array.from(li.classList).find((c) => c.startsWith('js-mtd-'));
+        const value = mapping[cls];
+        if (value) {
+          await FTData.UpdateMindfulTimerDelay(value);
+          window.Toast?.show('Saved', { type: 'success' });
+          updateSettingsUIFromData();
+          container.open = false;
+        }
+      });
     });
-    if (typing) typing.addEventListener('click', async () => {
-      await FTData.UpdateFeedBypassMethod('typing');
-      window.Toast?.show('Saved', { type: 'success' });
-      updateSettingsUIFromData();
+  }
+
+  function bindGrayscaleOpacity() {
+    const container = document.querySelector('.js-gso');
+    if (!container) return;
+    const mapping = {
+      'js-gso-100': '100',
+      'js-gso-75': '75',
+      'js-gso-50': '50',
+      'js-gso-25': '25',
+    };
+    container.querySelectorAll('li').forEach((li) => {
+      li.addEventListener('click', async () => {
+        const cls = Array.from(li.classList).find((c) => c.startsWith('js-gso-'));
+        const value = mapping[cls];
+        if (value) {
+          await FTData.UpdateGrayscaleOpacity(value);
+          window.Toast?.show('Saved', { type: 'success' });
+          updateSettingsUIFromData();
+          container.open = false;
+        }
+      });
     });
   }
 
@@ -468,21 +555,7 @@
         window.Toast?.show('Saved', { type: 'success' });
       });
     });
-  }
-
-  function bindAutoCloseDelay() {
-    const input = document.getElementById('autoCloseDelay');
-    if (!input) return;
-    input.addEventListener('change', async () => {
-      let v = parseInt(input.value, 10);
-      if (!Number.isFinite(v)) v = 3;
-      if (v < 1) v = 1;
-      if (v > 10) v = 10;
-      input.value = String(v);
-      await FTData.UpdateAutoCloseDelay(v);
-      window.Toast?.show('Saved', { type: 'success' });
-    });
-  }
+  }  
 
   // ----- Collapsible panels (Advanced / Add Site) -----
   async function setupPanelToggles() {
@@ -604,8 +677,10 @@
       labelEl.textContent = 'Auto Logout';
     } else if (method === 'hideFeed') {
       labelEl.textContent = 'Hide Feed';
-    } else if (method === 'blockSite') {
-      labelEl.textContent = 'Block Site';
+    } else if (method === 'mindfulTimer') {
+      labelEl.textContent = 'Mindful Timer';
+    } else if (method === 'grayscale') {
+      labelEl.textContent = 'Grayscale';
     } else {
       labelEl.textContent = '';
     }
