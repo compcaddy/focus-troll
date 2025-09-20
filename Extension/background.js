@@ -18,6 +18,7 @@ const LOGOUT_DELAY = 10000; // 10 seconds
 const logoutTimers = new Map();
 const grayscaleTabs = new Map();
 const mindfulTabs = new Map();
+const mindfulCompletedTabs = new Map();
 
 const MINDFUL_PROMPTS = [
   'Take a breath. Is this visit aligned with what you planned to do right now?',
@@ -64,6 +65,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
         console.warn(`Focus Troll: Failed to close tab ${tabId} from mindful prompt`, error);
       });
       mindfulTabs.delete(tabId);
+      mindfulCompletedTabs.delete(tabId);
     }
     return;
   }
@@ -79,8 +81,25 @@ chrome.runtime.onMessage.addListener((message, sender) => {
     const tabId = sender?.tab?.id;
     if (tabId != null) {
       const state = mindfulTabs.get(tabId);
-      if (!state || !message.instanceId || state.instanceId === message.instanceId) {
-        mindfulTabs.delete(tabId);
+      if (!state) {
+        if (message.reason !== 'complete') mindfulCompletedTabs.delete(tabId);
+        return;
+      }
+
+      if (message.instanceId && state.instanceId && state.instanceId !== message.instanceId) {
+        return;
+      }
+
+      mindfulTabs.delete(tabId);
+
+      if (message.reason === 'complete') {
+        mindfulCompletedTabs.set(tabId, {
+          host: state.host,
+          url: state.url,
+          completedAt: Date.now(),
+        });
+      } else {
+        mindfulCompletedTabs.delete(tabId);
       }
     }
   }
@@ -131,6 +150,7 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
 
   grayscaleTabs.delete(tabId);
   mindfulTabs.delete(tabId);
+  mindfulCompletedTabs.delete(tabId);
 
   if (removeInfo.isWindowClosing) return;
 
@@ -480,6 +500,10 @@ async function applyActionsForTab(tabId, tab) {
 
     const normalizedHost = extractNormalizedHost(tab.url);
     const site = normalizedHost ? findSiteByHost(settings, normalizedHost) : null;
+    const completedState = mindfulCompletedTabs.get(tabId);
+    if (completedState && normalizedHost && completedState.host !== normalizedHost) {
+      mindfulCompletedTabs.delete(tabId);
+    }
     const onDuty = settings?.settings?.onDuty;
     const onDutyActive = isOnDutyActive(onDuty);
 
@@ -495,10 +519,16 @@ async function applyActionsForTab(tabId, tab) {
     if (!onDutyActive || !site || site.blockMethod === 'none') {
       await clearGrayscale(tabId);
       await clearMindfulTimer(tabId);
+      mindfulCompletedTabs.delete(tabId);
       return;
     }
 
     if (site.blockMethod === 'mindfulTimer') {
+      const alreadyCompleted = mindfulCompletedTabs.get(tabId);
+      if (alreadyCompleted && alreadyCompleted.host === normalizedHost) {
+        console.log(`Focus Troll: Mindful timer already completed for tab ${tabId}`);
+        return;
+      }
       await clearGrayscale(tabId);
       await startMindfulTimer(tabId, tab, site, onDuty);
       return;
@@ -520,6 +550,7 @@ async function applyActionsForTab(tabId, tab) {
       console.log(`Focus Troll: ${normalizedHost} block method ${site.blockMethod} does not require grayscale`);
       await clearGrayscale(tabId);
       await clearMindfulTimer(tabId);
+      mindfulCompletedTabs.delete(tabId);
     }
   } catch (error) {
     console.error('Focus Troll: Failed to apply actions to tab', error);
