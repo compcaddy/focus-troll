@@ -2,7 +2,7 @@
 module.exports = {
   content: [
     "./popup.html",
-    "./popup.js",
+    "./popup2.js",
     "./**/*.html"
   ],
   theme: {

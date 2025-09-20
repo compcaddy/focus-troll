@@ -22,7 +22,6 @@
 - Tailwind utility bundle: `tailwind.css`
 - Watchlist template in `popup.html` (`#watchItemTemplate`) is cloned and populated by `popup2.js`
 - Disabled sites keep their previous method label but the dropdown is muted; alert banner (`#watchListAlert`) appears when every site is disabled
-- Legacy layout (handled by `popup.js`) still exists but is hidden; don’t rely on it for new work
 
 ## Background Worker
 - Imports `data.js` via `importScripts`
@@ -58,6 +57,5 @@
 ## Common Pitfalls
 - Forgetting to update `lastMethod` when introducing new actions – UI will fall back to `logOut`
 - Injecting CSS into tabs without checking permissions – the service worker will log failures
-- Relying on hidden legacy markup (`defaultSites`, `customSites`, etc.) that `popup.js` still touches
 
 Keep this guide handy when planning or reviewing changes; it reflects the current architecture after the grayscale rollout and watchlist refresh.

@@ -55,7 +55,6 @@ site = {
 ## Gotchas & Tips
 - Keep `DEFAULT_SITES` in `data.js` authoritative; mirror any changes in UI defaults.
 - When adding new methods, update enums (`BLOCK_METHODS`), UI labels (`updateSummary`), and background handling.
-- Popups still include `popup.js` for legacy layout; avoid regressing functionality there even though it’s largely hidden.
 - For grayscale issues, check service-worker console for “Missing permissions” messages, and verify `document.documentElement.style.filter` when debugging.
 - Use `FTData` helpers instead of direct storage writes to ensure `lastMethod`, validation, and caching stay consistent.
 
