@@ -1,61 +1,104 @@
-# Focus Troll – Claude Reference
+# CLAUDE.md
 
-## Project Snapshot
-- **Purpose:** Chrome extension that helps users stay on task by applying focus methods (auto logout, mindful delays, grayscale, feed hiding) per site.
-- **Tech:** Manifest V3 service worker (`background.js`), vanilla JS popup (`popup2.js` + `data.js`), Tailwind-generated CSS (`tailwind.css`).
-- **Storage:** Settings live in `chrome.storage.sync` under `ft_settings_v1`, managed through the Promise-based helpers in `data.js`.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Key Files
-| File | Role |
-| --- | --- |
-| `manifest.json` | MV3 manifest, optional host permissions, scripting + cookies access |
-| `background.js` | Service worker: tab tracking, logout timers, grayscale injection, settings cache |
-| `popup.html` | Settings UI shell (Tailwind layout + watchlist template) |
-| `popup2.js` | Main UI logic: watchlist rendering, custom-site flow, toggle handling |
-| `data.js` | Storage abstraction, default site list, on-duty schedule helpers |
-| `tailwind.css` | Precompiled Tailwind utilities used across the popup |
+# Focus Troll – Chrome Extension
 
-## Current Behaviour Highlights
-- **Watchlist UI**
-  - Sites display domain + focus method. When disabled, the method label remains but dims; dropdown is read-only until re-enabled.
-  - Alert banner (`#watchListAlert`) appears if every site is toggled off.
-  - Domain text is clickable (opens new tab) with hover underline.
-- **Custom Sites**
-  - Form now collects URL + method; site name is auto-derived (title-cased domain fragment).
-  - Basic validation requires a dot in the host; invalid input triggers toast feedback.
-  - `lastMethod` persists the chosen action even when toggled off.
-- **Background Worker**
-  - Imports `data.js`, caches settings, reacts to storage changes, tab updates, and activation.
-  - Grayscale uses `chrome.scripting.executeScript` to set inline `filter`/`opacity`, ensuring styles override stubborn site CSS.
-  - Auto logout waits 10 seconds after last tab closes, then clears cookies/local/session storage using predefined patterns.
-  - On-duty schedule respected (day-of-week, start/end times, always-on flag).
+## Project Overview
+Chrome extension that helps users stay on task by applying focus methods (auto logout, mindful delays, grayscale, feed hiding) per site. Built with Manifest V3 service worker architecture, vanilla JS, and Tailwind CSS.
 
-## Data Model Essentials
-```json
+## Development Commands
+```bash
+npm install          # Install dependencies (Tailwind CLI)
+npm run build        # Full build: CSS compilation + copy files to builds/dev/
+npm run build:css    # Compile Tailwind CSS only
+npm run build:copy   # Copy extension files to builds/dev/
+npm run build:watch  # Watch mode for Tailwind development
+```
+**Note:** No test framework configured. No linting tools set up.
+
+## Architecture & Key Components
+
+### Service Worker (`background.js` - 1,568 lines)
+- Imports `data.js` for storage operations
+- Manages tab lifecycle, timers, content injection
+- Features: logout timers (10s delay after last tab), grayscale injection, mindful timers
+- Respects on-duty schedule before applying methods
+- Graceful permission handling with fallback logging
+
+### Data Layer (`data.js` - 582 lines)
+- Promise-based `chrome.storage.sync` abstraction (`FTData` global)
+- Storage key: `ft_settings_v1`
+- Default sites: Facebook, Instagram, YouTube, TikTok, Reddit, X, LinkedIn
+- Action logging with quota management (250 items or 30 days)
+- URL normalization: strips protocol, removes www, lowercases
+
+### UI Layer (`popup2.js` - 722 lines + `popup.html`)
+- Template-based rendering using `#watchItemTemplate`
+- Dynamic watchlist with toggle states
+- Custom site addition with auto-derived names
+- Settings panel with on-duty scheduling
+- Toast notifications via `toast.js`
+
+### Build Output Structure
+```
+builds/dev/         # Loadable extension directory
+├── manifest.json
+├── background.js
+├── popup.html
+├── popup2.js
+├── data.js
+├── tailwind.css
+├── toast.js
+└── [icons/images]
+```
+
+## Data Model
+```javascript
 site = {
   name: string,
   url: string,              // normalized host (no scheme, lowercase)
   blockMethod: 'none' | 'logOut' | 'hideFeed' | 'mindfulTimer' | 'grayscale',
-  lastMethod: same as above, // remembers last active method
+  lastMethod: string,       // remembers last active method when toggled off
   isCustom: boolean
 }
+
+settings = {
+  enabled: boolean,
+  AlwaysOn: boolean,
+  startTime: string,        // HH:MM format
+  endTime: string,
+  days: number[],           // 0-6 (Sun-Sat)
+  mindfulTimerDelay: number,
+  grayscaleOpacity: number
+}
 ```
-- Default sites ship with `blockMethod: 'none'` and sensible `lastMethod` (e.g., YouTube/TikTok default to `hideFeed`).
-- On-duty settings include `enabled`, `AlwaysOn`, `startTime`, `endTime`, `days`, `mindfulTimerDelay`, `grayscaleOpacity`.
 
-## Permissions Story
-- Optional host permissions for popular sites + wildcard (`*://*/*`) allow gradual permission requests.
-- Background checks with `chrome.permissions.contains`; if missing, it logs a warning and skips feature application (no auto-request).
+## Implementation Details
 
-## Build & Development
-- `npm install` (Tailwind CLI).
-- `npm run build` → outputs CSS and copies extension assets into `builds/dev/` for loading in Chrome.
-- `npm run build:watch` for live Tailwind recompilation during UI work.
+### Permissions Architecture
+- Uses `<all_urls>` with graceful degradation
+- Background checks `chrome.permissions.contains` before features
+- No automatic permission requests - logs warnings only
+- Predefined host patterns for popular sites
 
-## Gotchas & Tips
-- Keep `DEFAULT_SITES` in `data.js` authoritative; mirror any changes in UI defaults.
-- When adding new methods, update enums (`BLOCK_METHODS`), UI labels (`updateSummary`), and background handling.
-- For grayscale issues, check service-worker console for “Missing permissions” messages, and verify `document.documentElement.style.filter` when debugging.
-- Use `FTData` helpers instead of direct storage writes to ensure `lastMethod`, validation, and caching stay consistent.
+### Advanced Features
+- **Logout System:** Tracks tabs per domain, 10s timer after last tab closes, clears cookies/storage
+- **Grayscale:** Uses `chrome.scripting.executeScript` with inline styles to override site CSS
+- **Action Logging:** Quota-aware (250 items/30 days) to respect sync storage limits
+- **URL Processing:** Normalizes user input (strips protocol, www, trailing slashes)
+- **State Persistence:** `lastMethod` remembers selection even when site toggled off
 
-This reference reflects the codebase after the watchlist refresh and grayscale feature rollout; use it when answering questions or planning follow-up work.
+### UI Behavior
+- Watchlist shows domain + method, dims when disabled
+- Alert banner appears if all sites disabled
+- Domain text clickable (opens new tab) with hover underline
+- Dropdown read-only when site disabled
+- Custom site form validates domain format (requires dot)
+
+## Critical Notes
+- `DEFAULT_SITES` in `data.js` is authoritative source
+- When adding methods, update: `BLOCK_METHODS` enum, UI labels, background handlers
+- Always use `FTData` helpers for storage operations
+- Check service worker console for permission issues
+- Extension loads from `builds/dev/` after build

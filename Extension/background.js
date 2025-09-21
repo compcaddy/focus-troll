@@ -19,6 +19,7 @@ const logoutTimers = new Map();
 const grayscaleTabs = new Map();
 const mindfulTabs = new Map();
 const mindfulCompletedTabs = new Map();
+const hideFeedBypasses = new Map();
 
 const MINDFUL_PROMPTS = [
   'Take a breath. Is this visit aligned with what you planned to do right now?',
@@ -32,6 +33,46 @@ const MINDFUL_PROMPTS = [
   'Imagine it\'s the end of the day - will this detour feel worth it?',
   'What progress will you be proud of after this timer ends?'
 ];
+
+const HIDE_FEED_TYPING_PHRASE = "I have a good reason to see the feed, it's not just a dopamine hit";
+
+const HIDE_FEED_SITE_CONFIGS = {
+  'facebook.com': {
+    feedSelector: '[role="main"]',
+    overlayTitle: 'Feed hidden',
+    overlayMessage: 'Ün-skrôll covered this feed so you can stay focused. Finish your task first, then come back with intention.'
+  },
+  'x.com': {
+    feedSelector: '[role="main"]',
+    overlayTitle: 'Feed hidden',
+    overlayMessage: 'Ün-skrôll covered this feed so you can stay focused. Finish your task first, then come back with intention.'
+  },
+  'reddit.com': {
+    feedSelector: '#main-content',
+    overlayTitle: 'Feed hidden',
+    overlayMessage: 'Ün-skrôll covered this feed so you can stay focused. Finish your task first, then come back with intention.'
+  },
+  'linkedin.com': {
+    feedSelector: '[aria-label="Main Feed"]',
+    overlayTitle: 'Feed hidden',
+    overlayMessage: 'Ün-skrôll covered this feed so you can stay focused. Finish your task first, then come back with intention.'
+  },
+  'youtube.com': {
+    feedSelector: '#contents',
+    overlayTitle: 'Feed hidden',
+    overlayMessage: 'Ün-skrôll covered this feed so you can stay focused. Finish your task first, then come back with intention.'
+  },
+  'instagram.com': {
+    feedSelector: '[role="main"]',
+    overlayTitle: 'Feed hidden',
+    overlayMessage: 'Ün-skrôll covered this feed so you can stay focused. Finish your task first, then come back with intention.'
+  },
+  'tiktok.com': {
+    feedSelector: 'main',
+    overlayTitle: 'Feed hidden',
+    overlayMessage: 'Ün-skrôll covered this feed so you can stay focused. Finish your task first, then come back with intention.'
+  },
+};
 
 let settingsCache = null;
 let settingsPromise = null;
@@ -102,6 +143,35 @@ chrome.runtime.onMessage.addListener((message, sender) => {
         mindfulCompletedTabs.delete(tabId);
       }
     }
+    return;
+  }
+
+  if (message.type === 'FT_HIDE_FEED_BYPASS') {
+    const tabId = sender?.tab?.id;
+    if (tabId != null) {
+      let normalizedHost = null;
+      if (typeof message.host === 'string' && message.host) {
+        normalizedHost = normalizeHostValue(message.host);
+      }
+      if (!normalizedHost && sender.tab?.url) {
+        normalizedHost = extractNormalizedHost(sender.tab.url);
+      }
+      const effectiveUrl = typeof message.url === 'string' && message.url
+        ? message.url
+        : sender.tab?.url || null;
+      hideFeedBypasses.set(tabId, {
+        host: normalizedHost,
+        url: effectiveUrl,
+        bypassMethod: (message.bypassMethod || '').toString() || 'button',
+        bypassedAt: Date.now(),
+      });
+      console.log('Focus Troll: Hide feed bypass recorded', {
+        tabId,
+        host: normalizedHost,
+        bypassMethod: message.bypassMethod,
+      });
+    }
+    return;
   }
 });
 
@@ -151,6 +221,7 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
   grayscaleTabs.delete(tabId);
   mindfulTabs.delete(tabId);
   mindfulCompletedTabs.delete(tabId);
+  hideFeedBypasses.delete(tabId);
 
   if (removeInfo.isWindowClosing) return;
 
@@ -257,6 +328,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== 'sync' || !changes[SETTINGS_KEY]) return;
   settingsCache = changes[SETTINGS_KEY].newValue || null;
   settingsPromise = null;
+  hideFeedBypasses.clear();
   refreshAllTabs().catch((error) => {
     console.error('Focus Troll: Failed to refresh tabs after settings change', error);
   });
@@ -486,6 +558,7 @@ async function applyActionsForTab(tabId, tab) {
   if (!tab || !tab.url || tab.incognito || !isWebUrl(tab.url)) {
     await clearGrayscale(tabId);
     await clearMindfulTimer(tabId);
+    await clearHideFeed(tabId);
     return;
   }
 
@@ -519,6 +592,7 @@ async function applyActionsForTab(tabId, tab) {
     if (!onDutyActive || !site || site.blockMethod === 'none') {
       await clearGrayscale(tabId);
       await clearMindfulTimer(tabId);
+      await clearHideFeed(tabId);
       mindfulCompletedTabs.delete(tabId);
       return;
     }
@@ -530,7 +604,15 @@ async function applyActionsForTab(tabId, tab) {
         return;
       }
       await clearGrayscale(tabId);
+      await clearHideFeed(tabId);
       await startMindfulTimer(tabId, tab, site, onDuty);
+      return;
+    }
+
+    if (site.blockMethod === 'hideFeed') {
+      await clearGrayscale(tabId);
+      await clearMindfulTimer(tabId);
+      await applyHideFeed(tabId, tab, site, onDuty, normalizedHost);
       return;
     }
 
@@ -542,16 +624,20 @@ async function applyActionsForTab(tabId, tab) {
         console.warn(`Focus Troll: Missing permissions for ${normalizedHost}, skipping grayscale`);
         await clearGrayscale(tabId);
         await clearMindfulTimer(tabId);
+        await clearHideFeed(tabId);
         return;
       }
       await applyGrayscale(tabId, opacity);
       await clearMindfulTimer(tabId);
-    } else {
-      console.log(`Focus Troll: ${normalizedHost} block method ${site.blockMethod} does not require grayscale`);
-      await clearGrayscale(tabId);
-      await clearMindfulTimer(tabId);
-      mindfulCompletedTabs.delete(tabId);
+      await clearHideFeed(tabId);
+      return;
     }
+
+    console.log(`Focus Troll: ${normalizedHost} block method ${site.blockMethod} does not require overlays`);
+    await clearGrayscale(tabId);
+    await clearMindfulTimer(tabId);
+    await clearHideFeed(tabId);
+    mindfulCompletedTabs.delete(tabId);
   } catch (error) {
     console.error('Focus Troll: Failed to apply actions to tab', error);
   }
@@ -636,6 +722,88 @@ async function ensureSitePermissions(host, isCustom) {
     return false;
   }
   return hasPermission;
+}
+
+async function applyHideFeed(tabId, tab, site, onDuty, normalizedHost) {
+  const url = tab?.url;
+  if (!url || !normalizedHost) {
+    await clearHideFeed(tabId);
+    return;
+  }
+
+  const config = HIDE_FEED_SITE_CONFIGS[normalizedHost];
+  if (!config) {
+    console.warn(`Focus Troll: No hide feed configuration for ${normalizedHost}`);
+    await clearHideFeed(tabId);
+    return;
+  }
+
+  const rawBypass = (onDuty?.feedBypassMethod || 'button').toString().toLowerCase();
+  const bypassMethod = ['none', 'button', 'typing'].includes(rawBypass) ? rawBypass : 'button';
+
+  const existingBypass = hideFeedBypasses.get(tabId);
+  if (existingBypass) {
+    if (existingBypass.host && existingBypass.host !== normalizedHost) {
+      hideFeedBypasses.delete(tabId);
+    } else if (existingBypass.bypassMethod !== bypassMethod) {
+      hideFeedBypasses.delete(tabId);
+    } else if (existingBypass.host === normalizedHost) {
+      if (existingBypass.url !== url) {
+        existingBypass.url = url;
+        hideFeedBypasses.set(tabId, existingBypass);
+      }
+      console.log(`Focus Troll: Hide feed bypass active for tab ${tabId} (${normalizedHost})`);
+      return;
+    }
+  }
+
+  const hasPermission = await ensureSitePermissions(normalizedHost, !!site.isCustom);
+  if (!hasPermission) {
+    console.warn(`Focus Troll: Missing permissions for ${normalizedHost}, skipping hide feed`);
+    await clearHideFeed(tabId);
+    return;
+  }
+
+  const instanceId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+  try {
+    const results = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: hideFeedOverlayScript,
+      args: [{
+        config,
+        host: normalizedHost,
+        url,
+        bypassMethod,
+        instanceId,
+        typingPhrase: HIDE_FEED_TYPING_PHRASE,
+        overlayId: 'focus-troll-hide-feed-overlay',
+      }],
+      injectImmediately: true,
+    });
+    const outcome = Array.isArray(results) ? results[0]?.result : null;
+    if (outcome && outcome.applied === false) {
+      console.warn(`Focus Troll: Hide feed overlay not applied to tab ${tabId}`, outcome);
+    } else {
+      console.log(`Focus Troll: Hide feed overlay applied to tab ${tabId} (${normalizedHost})`);
+    }
+  } catch (error) {
+    console.warn(`Focus Troll: Failed to apply hide feed overlay to tab ${tabId}`, error);
+  }
+}
+
+async function clearHideFeed(tabId) {
+  hideFeedBypasses.delete(tabId);
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId },
+      func: hideFeedOverlayCleanup,
+      args: [{ overlayId: 'focus-troll-hide-feed-overlay' }],
+      injectImmediately: true,
+    });
+  } catch (error) {
+    // Ignore cases where the tab is gone or overlay was not present.
+  }
 }
 
 function parseOpacity(opacityValue) {
@@ -799,6 +967,263 @@ function parseMindfulDelay(value) {
   };
   const normalized = String(value || '').trim();
   return mapping[normalized] ?? mapping['15s'];
+}
+
+function hideFeedOverlayScript(options) {
+  try {
+    const opts = options || {};
+    const config = opts.config || {};
+    const overlayId = opts.overlayId || 'focus-troll-hide-feed-overlay';
+    const bypassMethod = (opts.bypassMethod || 'button').toLowerCase();
+    const typingPhrase = (opts.typingPhrase || '').toString();
+    const selector = config.feedSelector;
+    if (!selector) return { applied: false, reason: 'missing-selector' };
+
+    const doc = document;
+    if (!doc || !doc.querySelector) return { applied: false, reason: 'no-document' };
+
+    const feedEl = doc.querySelector(selector);
+    if (!feedEl) {
+      return { applied: false, reason: 'feed-not-found' };
+    }
+
+    const cleanupExisting = () => {
+      const existing = doc.getElementById(overlayId);
+      if (!existing) return;
+      const parent = existing.parentElement;
+      existing.remove();
+      if (parent && parent.dataset) {
+        const token = parent.dataset.focusTrollHideFeedPosition;
+        if (token === 'static') {
+          parent.style.removeProperty('position');
+        } else if (token && token.startsWith('inline:')) {
+          parent.style.position = token.slice(7);
+        }
+        delete parent.dataset.focusTrollHideFeedPosition;
+      }
+    };
+
+    cleanupExisting();
+
+    const datasetKey = 'focusTrollHideFeedPosition';
+    if (!feedEl.dataset[datasetKey]) {
+      const inlinePosition = feedEl.style.position;
+      if (inlinePosition && inlinePosition.trim() !== '') {
+        feedEl.dataset[datasetKey] = `inline:${inlinePosition}`;
+      } else {
+        const computed = window.getComputedStyle(feedEl).position;
+        if (computed === 'static') {
+          feedEl.dataset[datasetKey] = 'static';
+          feedEl.style.position = 'relative';
+        }
+      }
+    }
+
+    const overlay = doc.createElement('div');
+    overlay.id = overlayId;
+    overlay.dataset.focusTrollInstanceId = opts.instanceId || '';
+    overlay.dataset.focusTrollBypassMethod = bypassMethod;
+    overlay.style.position = 'absolute';
+    overlay.style.inset = '0';
+    overlay.style.zIndex = '2147483646';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'flex-start';
+    overlay.style.padding = '48px 24px 32px';
+    overlay.style.background = 'rgba(10, 24, 14, 0.96)';
+    overlay.style.color = '#F4FFE3';
+    overlay.style.textAlign = 'center';
+    overlay.style.fontFamily = 'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    overlay.style.gap = '18px';
+    overlay.style.backdropFilter = 'blur(2px)';
+    overlay.style.boxShadow = 'inset 0 0 0 1px rgba(244, 255, 227, 0.1)';
+
+    const content = doc.createElement('div');
+    content.style.display = 'flex';
+    content.style.flexDirection = 'column';
+    content.style.alignItems = 'center';
+    content.style.gap = '18px';
+    content.style.width = '100%';
+    content.style.maxWidth = '560px';
+    content.style.marginTop = '48px';
+    overlay.appendChild(content);
+
+    const title = doc.createElement('h2');
+    title.textContent = config.overlayTitle || 'Feed hidden';
+    title.style.margin = '0';
+    title.style.fontSize = '22px';
+    title.style.fontWeight = '700';
+    content.appendChild(title);
+
+    const message = doc.createElement('p');
+    message.textContent = config.overlayMessage || 'Ün-skrôll covered this feed to keep you focused.';
+    message.style.margin = '0';
+    message.style.fontSize = '15px';
+    message.style.lineHeight = '1.5';
+    message.style.maxWidth = '520px';
+    content.appendChild(message);
+
+    const actionContainer = doc.createElement('div');
+    actionContainer.style.display = 'flex';
+    actionContainer.style.flexDirection = 'column';
+    actionContainer.style.alignItems = 'center';
+    actionContainer.style.gap = '12px';
+    actionContainer.style.width = '100%';
+    actionContainer.style.maxWidth = '420px';
+    content.appendChild(actionContainer);
+
+    let bypassNotified = false;
+    const restoreFeed = () => {
+      if (bypassNotified) return;
+      bypassNotified = true;
+      const parent = overlay.parentElement;
+      overlay.remove();
+      if (parent && parent.dataset) {
+        const token = parent.dataset.focusTrollHideFeedPosition;
+        if (token === 'static') {
+          parent.style.removeProperty('position');
+        } else if (token && token.startsWith('inline:')) {
+          parent.style.position = token.slice(7);
+        }
+        delete parent.dataset.focusTrollHideFeedPosition;
+      }
+      try {
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+          chrome.runtime.sendMessage({
+            type: 'FT_HIDE_FEED_BYPASS',
+            host: opts.host || window.location.hostname,
+            url: opts.url || window.location.href,
+            bypassMethod,
+          });
+        }
+      } catch (_) {
+        /* noop */
+      }
+    };
+
+    if (bypassMethod === 'none') {
+      const note = doc.createElement('p');
+      note.textContent = 'The feed stays hidden while Ün-skrôll is on duty.';
+      note.style.margin = '0';
+      note.style.fontSize = '14px';
+      note.style.opacity = '0.8';
+      actionContainer.appendChild(note);
+    } else {
+      const button = doc.createElement('button');
+      button.type = 'button';
+      button.style.padding = '14px 28px';
+      button.style.borderRadius = '999px';
+      button.style.border = 'none';
+      button.style.fontSize = '16px';
+      button.style.fontWeight = '700';
+      button.style.cursor = 'pointer';
+      button.style.background = '#F4FFE3';
+      button.style.color = '#102617';
+      button.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.2)';
+
+      if (bypassMethod === 'button') {
+        button.textContent = 'Show feed';
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          restoreFeed();
+        });
+        actionContainer.appendChild(button);
+      } else if (bypassMethod === 'typing') {
+        const instructions = doc.createElement('p');
+        instructions.textContent = 'Type the sentence below to unlock the feed:';
+        instructions.style.margin = '0';
+        instructions.style.fontSize = '14px';
+        instructions.style.opacity = '0.9';
+        instructions.style.lineHeight = '1.4';
+        actionContainer.appendChild(instructions);
+
+        const phrase = doc.createElement('p');
+        phrase.textContent = typingPhrase || 'I have a good reason to see the feed, it\'s not just a dopamine hit';
+        phrase.style.margin = '0';
+        phrase.style.padding = '12px 16px';
+        phrase.style.fontSize = '14px';
+        phrase.style.fontWeight = '600';
+        phrase.style.borderRadius = '12px';
+        phrase.style.border = '1px solid rgba(244, 255, 227, 0.35)';
+        phrase.style.background = 'rgba(244, 255, 227, 0.08)';
+        phrase.style.lineHeight = '1.45';
+        actionContainer.appendChild(phrase);
+
+        const input = doc.createElement('textarea');
+        input.rows = 3;
+        input.style.width = '100%';
+        input.style.resize = 'none';
+        input.style.padding = '10px 12px';
+        input.style.borderRadius = '10px';
+        input.style.border = '1px solid rgba(244, 255, 227, 0.35)';
+        input.style.background = 'rgba(0, 0, 0, 0.15)';
+        input.style.color = '#F4FFE3';
+        input.style.fontSize = '14px';
+        input.style.lineHeight = '1.4';
+        input.setAttribute('aria-label', 'Type the unlock sentence');
+        actionContainer.appendChild(input);
+
+        button.textContent = 'Unlock feed';
+        button.disabled = true;
+        button.style.opacity = '0.6';
+        button.style.cursor = 'not-allowed';
+
+        const updateState = () => {
+          const matches = input.value.trim() === phrase.textContent;
+          button.disabled = !matches;
+          button.style.opacity = matches ? '1' : '0.6';
+          button.style.cursor = matches ? 'pointer' : 'not-allowed';
+        };
+        input.addEventListener('input', updateState);
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (button.disabled) return;
+          restoreFeed();
+        });
+        actionContainer.appendChild(button);
+      }
+
+    }
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+
+    feedEl.appendChild(overlay);
+    return { applied: true };
+  } catch (error) {
+    return { applied: false, reason: 'error', message: String(error && error.message || error) };
+  }
+}
+
+function hideFeedOverlayCleanup(options) {
+  try {
+    const opts = options || {};
+    const overlayId = opts.overlayId || 'focus-troll-hide-feed-overlay';
+    const doc = document;
+    if (!doc) return;
+    const overlay = doc.getElementById(overlayId);
+    if (!overlay) return;
+    const parent = overlay.parentElement;
+    overlay.remove();
+    if (parent && parent.dataset) {
+      const token = parent.dataset.focusTrollHideFeedPosition;
+      if (token === 'static') {
+        parent.style.removeProperty('position');
+      } else if (token && token.startsWith('inline:')) {
+        parent.style.position = token.slice(7);
+      }
+      delete parent.dataset.focusTrollHideFeedPosition;
+    }
+  } catch (_) {
+    /* noop */
+  }
 }
 
 function mindfulTimerOverlayScript(options) {
